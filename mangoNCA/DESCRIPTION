@@ -5,9 +5,8 @@ Version: 2.0.1
 Date: 2017-11-13
 Authors@R: c(person("", "Mango Solutions", email = "sales@mango-solutions.com", role = "cph"),
     person("Phil", "Lobb", role = "aut"),
-    person("Francisco", "Gochez", role = c("aut", "cre")),
-    person("Chris", "Campbell", email = "ccampbell@mango-solutions.com", role = "aut"))
-Maintainer: Chris Campbell <sales@mango-solutions.com>
+    person("Francisco", "Gochez", role = "aut"),
+    person("Chris", "Campbell", email = "ccampbell@mango-solutions.com", role = c("aut", "cre")))
 Description: This package is a Non-Compartmental Analysis (NCA) parameter calculation engine 
     which returns pharmacokinetic parameters for concentration-time data. 
     The interface function is getNCAnalysis.
