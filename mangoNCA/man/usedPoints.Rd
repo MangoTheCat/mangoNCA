@@ -2,39 +2,40 @@
 % Please edit documentation in R/selectPoints.R
 \name{usedPoints}
 \alias{usedPoints}
-\title{Use Selection to Calculate Lambdaz}
+\title{Use Selection to Calculate Terminal Phase Statistics
+
+Value is NA if selection would be less than minpoints.
+The number of points will not usually be related to the index of the
+points used, since any rows may be selected by the user}
 \usage{
-usedPoints(Conc, Time, usePoints, excPoints = FALSE, minPoints = 3,
-  Safe = TRUE)
+usedPoints(conc, time, usepoints, excpoints = FALSE, minpoints = 3)
 }
 \arguments{
-\item{Conc}{Vector of concentrations}
+\item{conc}{Vector of conc}
 
-\item{Time}{Vector of times, must be ordered in ascending order and should not have duplicates}
+\item{time}{Vector of time, must be ordered in ascending order and should not have duplicates}
 
-\item{usePoints}{Logical vector selecting points to use for calculation of terminal phase. Used rows are flagged by usePoints as \code{TRUE}.}
+\item{usepoints}{If \code{NULL} (default) automatically select, else,
+logical vector of points to use for calculation of terminal phase.
+Used rows are flagged by usepoints as \code{TRUE}.}
 
-\item{excPoints}{Logical vector (\code{FALSE} by default) excludeing \code{TRUE} rows from automatic calculation of terminal phase.}
+\item{excpoints}{If \code{NULL} (default) automatically select, else,
+logical vector of points to exclude from automatic calculation of terminal phase.
+Excluded rows are flagged by excpoints as \code{TRUE}.}
 
-\item{minPoints}{Single numeric declaring minimum number of points requred for lambdaz calculation.}
+\item{minpoints}{Single numeric declaring minimum number of points
+required for lambdaz calculation.}
 }
 \value{
 Single numeric value
 }
-\description{
-Use Selection to Calculate Lambdaz
-}
-\details{
-Value is NA if selection would be less than minPoints.
-The number of points will not usually be related to the index of the points used, 
-since any rows may be selected by the user
-}
 \examples{
-     usedPoints(Conc = c(435, 363, 113, 47,0), Time = 0:4, usePoints = c(TRUE, TRUE, TRUE, FALSE, FALSE))
-     usedPoints(Conc = c(435, 363, 113, 47,0), Time = 0:4, usePoints = rep(TRUE, 5), 
-         excPoints = c(FALSE, FALSE, TRUE, FALSE, FALSE))
+mangoNCA:::usedPoints(conc = c(435, 363, 113, 47,0),
+    time = 0:4, usepoints = c(TRUE, TRUE, TRUE, FALSE, FALSE))
+mangoNCA:::usedPoints(conc = c(435, 363, 113, 47,0),
+    time = 0:4, usepoints = rep(TRUE, 5),
+    excpoints = c(FALSE, FALSE, TRUE, FALSE, FALSE))
 }
 \author{
 Mango Solutions
 }
-\keyword{math}

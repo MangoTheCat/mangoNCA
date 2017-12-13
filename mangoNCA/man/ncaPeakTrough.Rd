@@ -4,19 +4,16 @@
 \alias{ncaPeakTrough}
 \title{PeakTrough Vector of pre- and post-dose identifiers (TROUGHCODE and PEAKCODE respectively). There must not be more than one of each. NULL is replaced with 0.}
 \usage{
-ncaPeakTrough(Conc, Time, Dose, Dof, PeakTrough = NULL, Safe = TRUE,
-  ROutput)
+ncaPeakTrough(conc, time, dose, duration, ROutput = shapeROutput)
 }
 \arguments{
-\item{Conc}{Vector of concentrations.}
+\item{conc}{Vector of conc}
 
-\item{Time}{Vector of times, must be ordered in ascending order and should not have duplicates.}
+\item{time}{Vector of time, must be ordered in ascending order and should not have duplicates}
 
-\item{Dose}{Single numeric value of dose.}
+\item{dose}{Single numeric value of dose}
 
-\item{Dof}{Single numeric value of duration of infusion.}
-
-\item{Safe}{Single logical value declaring whether to perform redundant data checks (default is TRUE).}
+\item{duration}{Single numeric value of duration of infusion}
 
 \item{ROutput}{Named vector consisting of 38 NA and 1 zero with names which should match expected output names.}
 }
@@ -24,16 +21,16 @@ ncaPeakTrough(Conc, Time, Dose, Dof, PeakTrough = NULL, Safe = TRUE,
 Data frame
 }
 \description{
-Return Concentration values coded as PEAKCODE or TROUGHCODE for sparse data
+Return concentration values coded as PEAKCODE or TROUGHCODE for sparse data
 }
 \details{
-Calculates Peak through (pre / post dose concentrations) for individuals on Time concentration curves.
+Calculates Peak through (pre / post dose concentrations) for individuals on time concentration curves.
 PEAKCODE is 2, TROUGHCODE is 1, if there is more than one of each of these, this is a data error.
 }
 \examples{
-load(system.file(package = "MangoNca", "data", "shapeROutput.RData"))
 Theoph1 <- subset(Theoph, Subject == 1)
-ncaPeakTrough(Conc = Theoph1$conc, Time = Theoph1$Time, Dose = Theoph1$Dose[1], Dof = 1, PeakTrough = c(1, 0, 0, 0, 2, rep(0, 6)), ROutput = shapeROutput)
+ncaPeakTrough(conc = Theoph1$conc, time = Theoph1$time, 
+    dose = Theoph1$Dose[1], duration = 1)
 }
 \author{
 Mango Solutions

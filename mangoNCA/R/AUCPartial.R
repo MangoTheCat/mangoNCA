@@ -1,109 +1,136 @@
-# SVN revision: $Rev:  $
-# Date of last change: $LastChangedDate: 19/08/2013 $
-# Last changed by: $LastChangedBy: ccampbell $
+
 # 
 # Original author: fgochez
 # Copyright Mango Solutions, Chippenham, UK
 ###############################################################################
 
 
-#' Area Under the Concentration Time Curve from T = 0 to T = endTime
+#' Area Under the concentration time Curve from T = 0 to T = endtime
 #'
-#' Calculates the area under a time-concentration curve from the first time up until the \code{endTime}.  
-#' \code{endTime} need not be one of the elements of \code{Time}, but it should not lie before the minimum time.
-#' If the endTime does not coincide with an existing time element and is less than tlast, the following 
+#' Calculates the area under a time-concentration curve from the first time up until the \code{endtime}.  
+#' \code{endtime} need not be one of the elements of \code{time}, but it should not lie before the minimum time.
+#' If the endtime does not coincide with an existing time element and is less than tlast, the following 
 #' interpolation formula will be used to calculated a new concentration: 
 #' \deqn{c_{inter} = c_1 +  \left| \frac{ t^{end} - t_1}{t_2 - t_1} \right|  (c_2 - c_1)}.  
-#' If endTime is greater than tlast the extrapolated area is calculated using \code{getTerminalAUC} 
-#' which calculates the area under the terminal phase exponential from TLast to endTime.
-#' \code{numPoints} is calculated by \code{\link{getPartialAUC}} .  
+#' If endtime is greater than tlast the extrapolated area is calculated using \code{getTerminalAUC} 
+#' which calculates the area under the terminal phase exponential from TLast to endtime.
+#' \code{lamznpt} is calculated by \code{\link{getPartialAUC}} .  
 #' This calculation is the integral of the Terminal phase exponential decay function: 
 #' \deqn{\int intercept \ast exp\left ( -\lambda _{z} \ast T\right ) dT = 
 #'     -intercept / \left ( \lambda _{z} \ast exp\left ( \lambda _{z} \ast T\right )\right)}
 #' The partial area under the terminal concentration time curve can be calculated 
-#' by subtracting modeled AUC0Tlast from modeled AUC0endTime.
-#' \code{numPoints} may be NA provided endTime < Tlast.
+#' by subtracting modeled AUC0Tlast from modeled AUC0endtime.
+#' \code{lamznpt} may be NA provided endtime < Tlast.
 #' 
-#' @param Conc Vector of concentrations
-#' @param Time Vector of times, must be ordered in ascending order and should not have duplicates
-#' @param endTime : last time at which area should be calculated
-#' @param numPoints : Number of points to use for lambdaz calculation.
-#' @param lambdaZStats if not \code{NULL}, a list with 9 elements (see details). Must be provided if numPoints is not.
-#' @param usePoints If NULL (default) automatically select, else, logical vector of points to use (\code{TRUE}) for calculation of terminal phase.
-#' @param excPoints Logical vector (\code{FALSE} by default) excludeing \code{TRUE} rows from automatic calculation of terminal phase.
-#' @param minPoints single numeric, the fewest points for which a linear model fit should be attempted (default 3)
-#' @param addT0 single logical, should T=0, C=0 be added to the input data if T0 is missing? (default \code{FALSE})
-#' @param inter Single character stating whether the interpolation method used is \code{"Linear"} (default), \code{"Lin up Log down"} or \code{"Linear Log"}
-#' @title Partial Area Under Concentration Time Curve
+#' @param conc Vector of concentrations
+#' @param time Vector of times, must be ordered in ascending order and should not have duplicates
+#' @param endtime : last time at which area should be calculated
+#' @param lamznpt : Number of points to use for lambda-z calculation.
+#' @param lambdaZStats if not \code{NULL}, a list with 9 elements (see details). Must be provided if lamznpt is not.
+#' @param usepoints If NULL (default) automatically select, else, logical vector of points to use (\code{TRUE}) for calculation of terminal phase.
+#' @param excpoints Logical vector (\code{FALSE} by default) excludeing \code{TRUE} rows from automatic calculation of terminal phase.
+#' @param minpoints single numeric, the fewest points for which a linear model fit should be attempted (default 3)
+#' @param addt0 single logical, should T=0, C=0 be added to the input data if T0 is missing? (default \code{FALSE})
+#' @param inter Single character stating whether the interpolation method used 
+#' is \code{"Linear"} (default), \code{"Lin up Log down"} or \code{"Linear Log"}
+#' @param useObs single logical, use observed rather than predicted CLast, 
+#' (default FALSE)
+#' @param maxdiffrsq single numeric in range 0-1 The Adjusted R-squared method 
+#' will select the number of points
+#' for terminal phase calculation for the set of trailing points with the 
+#' most points that is within maxdiffrsq of the maximum adjusted R-squared 
+#' (default 1e-4)
+#' @param minr2adj single numeric Minimum value permitted for adjusted R-squared for lambda-z to be calculated. 
+#' If NA or NULL, lambda-z calculation is supressed. (default 0.8)
+#' @param numhalflife single numeric Multiplier for terminal phase half life, 
+#' when checking that terminal phase half life is not an excessively large portion of the AUC0_Inf. 
+#' To always return lambda-z, set to 0.
+#' To never return lambda-z set to Inf, NULL or NA. (default 1)
+#' @title Partial Area Under concentration time Curve
 #' @return Single numeric with partial area under curve
 #' @export
-#' @seealso \code{\link{lambdaZStastics}} for more about the numPoints parameter
+#' @seealso \code{\link{lambdaZStatistics}} for more about the lamznpt parameter
 #' @author Mango Business Solutions
 #' @keywords math
 
 
-AUCPartial <- function(Conc, Time, endTime, numPoints = NULL, lambdaZStats = NULL, 
-    usePoints = NULL, excPoints = FALSE, minPoints = 3, addT0 = FALSE, inter = "Linear")
-{
+AUCPartial <- function(conc, time, endtime, lamznpt = NULL, lambdaZStats = NULL, 
+    usepoints = NULL, excpoints = FALSE, minpoints = 3, addt0 = FALSE, inter = "Linear", 
+    useObs = FALSE, maxdiffrsq = 1e-4, minr2adj = 0.8, numhalflife = 1) {
     
-    checkOrderedVector(Time, description = "Time", functionName =  "AUCPartial")    
+    checkOrderedVector(time, description = "time", functionName =  "AUCPartial")    
     
-    checkSingleNumeric(endTime, description = "endTime", functionName =  "AUCPartial")
+    checkSingleNumeric(endtime, description = "endtime", functionName =  "AUCPartial")
     
     aucp <- as.numeric(NA)
     
-    if (is.na(endTime)) {
+    if (is.na(endtime)) {
         
         return(aucp)
     }
     
     if (is.null(lambdaZStats)) {
+        checkSingleNumeric(lamznpt, description = "lamznpt", functionName =  "AUCPartial")
         
-        checkSingleNumeric(numPoints, description = "numPoints", functionName =  "AUCPartial")
-        
-        if( !(numPoints >= minPoints && numPoints <= length(Time) && floor(numPoints) ==  numPoints) ) {
+        if (!(lamznpt >= minpoints && lamznpt <= length(time) && 
+            floor(lamznpt) ==  lamznpt) ) {
             
-            warning(paste("Invalid value of numPoints:", numPoints, "in AUCInfObs", collapse = " "))
+            warning(paste("Invalid value of lamznpt:", lamznpt, "in AUCInfObs", collapse = " "))
             
             return(aucp)
         }
     }
     
-    if(!is.null(usePoints)) { checkLogicalSameLength(usePoints, Conc, "usePoints", "Concentration", "AUCPartial") }
+    if (!is.null(usepoints)) { 
+        checkLogicalSameLength(usepoints, conc, "usepoints", "concentration", "AUCPartial") }
     
-    if (identical(excPoints, FALSE)) { excPoints <- rep(FALSE, times = length(Time)) }
+    if (identical(excpoints, FALSE)) { excpoints <- rep(FALSE, times = length(time)) }
     
-    checkLogicalSameLength(excPoints, Time, "excPoints", "Time", "AUCPartial")
+    checkLogicalSameLength(excpoints, time, "excpoints", "time", "AUCPartial")
     
     checkSingleCharacter(inter, "inter", "AUCPartial")
 
-    # Add T = 0 if it is missing and remove missing values if TRUE, otherwise throw error
+    # Add T = 0 if it is missing and remove missing values if TRUE, 
+    # otherwise throw error
     
-    cleanData <- try(cleanConcTime(Conc = Conc, Time = Time, addT0 = addT0), silent = TRUE)
+    cleanData <- try(cleanconctime(conc = conc, time = time, excpoints = excpoints, addt0 = addt0), silent = TRUE)
     
-    if( is(cleanData, "try-error") ) {
-    
-        stop(paste("Error in AUCPartial: Error during data cleaning", as.character(cleanData), collapse = "\n"))
-        
+    if (is(cleanData, "try-error")) {
+        stop(paste("Error in AUCPartial: Error during data cleaning", 
+                as.character(cleanData), collapse = "\n"))
     }
     
-    if (sum(cleanData$Conc, na.rm = TRUE) == 0) {
-        
+    if (sum(cleanData$conc, na.rm = TRUE) == 0) {
         aucp <- as.numeric(0)
         
         return(aucp)
     }
     
-    Conc <- cleanData$Conc
+    conc <- cleanData$conc
     
-    Time <- cleanData$Time
+    time <- cleanData$time
     
     
     ###############################################################################
     
-    # check endTime occurs during Time
+    # check endtime occurs during time
     
-    if (endTime < min(Time)){
+    if (endtime < min(time)) {
+        return(aucp)
+    }
+    
+    ###############################################################################
+    
+    # if endtime is actually an element of the time vector, 
+    # we can fall back on standard AUC functions
+    
+    if (endtime %in% time) {
+        # endtimeIndex : integer with index of endtime inside time
+        endtimeIndex <- match(endtime, time)
+        
+        aucp <- AUCLast(conc = head(conc, n = endtimeIndex), 
+            time = head(time, n = endtimeIndex), 
+            addt0 = FALSE, inter = inter)
         
         return(aucp)
     }
@@ -111,33 +138,19 @@ AUCPartial <- function(Conc, Time, endTime, numPoints = NULL, lambdaZStats = NUL
     
     ###############################################################################
     
-    # if endTime is actually an element of the Time vector, we can fall back on standard AUC functions
+    # if endtime > tlast, we need to extrapolate final area
     
-    if( endTime %in% Time )
-    {
-        # endTimeIndex : integer with index of endTime inside Time
-        endTimeIndex <- match(endTime, Time )
-        
-        aucp <- AUCLast(Conc = head(Conc, n = endTimeIndex), Time = head(Time, n = endTimeIndex), addT0 = FALSE, Safe = TRUE, inter = inter)
-        
-        return(aucp)
-    }
+    cLastTLast <- ClastTlast(conc = conc, time = time)
     
-    
-    ###############################################################################
-    
-    # if endTime > tlast, we need to extrapolate final area
-    
-    cLastTLast <- ClastTlast( Conc = Conc, Time = Time )
-    
-    if(endTime > cLastTLast$tlast) {
+    if (endtime > cLastTLast$tlast) {
         
         if (!is.null(lambdaZStats)) {
             
-            if (!is.null(numPoints)) { warning("both numPoints and lambdaZStats provided to predictConc, ignoring numPoints") }
+            if (!is.null(lamznpt)) { 
+                warning("both lamznpt and lambdaZStats provided to predictConc, ignoring lamznpt") 
+            }
             
             if (is(lambdaZStats, "list")) {
-                
                 warning("lambdaZStats has been unlisted")
                 
                 lambdaZStats <- unlist(lambdaZStats)
@@ -145,117 +158,123 @@ AUCPartial <- function(Conc, Time, endTime, numPoints = NULL, lambdaZStats = NUL
             
             checkLambdaZStats(lambdaZStats = lambdaZStats)
             
-            aucterm <- try(getTerminalAUC(Conc = Conc, Time = Time, endTime = endTime, lambdaZStats = lambdaZStats), silent = TRUE)
+            aucterm <- try(getTerminalAUC(conc = conc, time = time, 
+                    endtime = endtime, lambdaZStats = lambdaZStats), silent = TRUE)
             
-            if(is(aucterm, "try-error")) {
+            if (is(aucterm, "try-error")) {
                 
-                stop(paste("Error in AUCPartial from call to getTerminalAUC with lambdaZStats, message was: ", aucterm, sep = "", collapse = ""))
+                stop(paste(
+                        "Error in AUCPartial from call to getTerminalAUC with lambdaZStats, message was: ", 
+                        aucterm, sep = "", collapse = ""))
             }
-            
         } else {
             
             # calculate the terminal AUC using integral of exponential function (aucterm)
+            excpoints <- cleanData$excpoints
             
-            excPoints <- cleanData$excPoints
+            if (!is.null(usepoints))  { usepoints <- cleanData$usepoints }
             
-            if (!is.null(usePoints))  { usePoints <- cleanData$usePoints }
-            
-            aucterm <- try(getTerminalAUC(Conc = Conc, Time = Time, endTime = endTime, numPoints = numPoints, usePoints = usePoints, excPoints = excPoints), silent = TRUE)
+            aucterm <- try(getTerminalAUC(conc = conc, time = time, 
+                    endtime = endtime, lamznpt = lamznpt, 
+                    usepoints = usepoints, excpoints = excpoints, useObs = useObs,
+                    maxdiffrsq = maxdiffrsq, minr2adj = minr2adj, numhalflife = numhalflife), 
+                silent = TRUE)
             
             if(is(aucterm, "try-error")) {
                 
-                stop(paste("Error in AUCPartial from call to getTerminalAUC performing complete calculation, message was: ", aucterm, sep = "", collapse = ""))
+                stop(paste(
+                        "Error in AUCPartial from call to getTerminalAUC performing complete calculation, message was: ", 
+                        aucterm, sep = "", collapse = ""))
             }
         }
         
-        auclast <- AUCLast(Conc = Conc, Time = Time)
+        auclast <- AUCLast(conc = conc, time = time)
         
         aucp <- auclast + aucterm
         
         return(aucp)
-        
     }
-    
     
     ###############################################################################
     
-    # endTime occurs between T0 and TLast
+    # endtime occurs between T0 and TLast
     
-    # find the last element which endTime exceeds
-    # t1Index the index of the largest time less than endTime
+    # find the last element which endtime exceeds
+    # t1Index the index of the largest time less than endtime
     # t2Index is next next time after t1Index
     
-    t1Index <- tail( which(Time < endTime), n = 1 )
+    t1Index <- tail( which(time < endtime), n = 1 )
     t2Index <- t1Index + 1
     
-    # t1, t2 = left time, right time (of interval containing endTime)
-    # c1, c2 = left concentration, right concentration (of interval containing endTime)
+    # t1, t2 = left time, right time (of interval containing endtime)
+    # c1, c2 = left concentration, right concentration (of interval containing endtime)
     
-    t1 <- Time[t1Index]
-    t2 <- Time[t2Index]
-    c1 <- Conc[t1Index]
-    c2 <- Conc[t2Index] 
+    t1 <- time[t1Index]
+    t2 <- time[t2Index]
+    c1 <- conc[t1Index]
+    c2 <- conc[t2Index] 
     
     # cInter is the interpolated concentration
     
-    cInter <- c1 + abs( (endTime - t1) / (t2 - t1) ) * (c2 - c1)
+    cInter <- c1 + abs( (endtime - t1) / (t2 - t1) ) * (c2 - c1)
     
-    # concBeforeEndTime, timeBeforeEndTime : vectors of concentrations and times that occur before endTime
+    # concBeforeEndtime, timeBeforeEndtime : vectors of concentrations and 
+    # times that occur before endtime
     
-    concBeforeEndTime <- head(Conc, n = t1Index)
-    timeBeforeEndTime <- head(Time, n = t1Index)
+    concBeforeEndtime <- head(conc, n = t1Index)
+    timeBeforeEndtime <- head(time, n = t1Index)
     
-    aucp <- sum(AUCLin(Conc = c(concBeforeEndTime, cInter), Time = c(timeBeforeEndTime, endTime)))
+    aucp <- sum(AUCLin(conc = c(concBeforeEndtime, cInter), 
+            time = c(timeBeforeEndtime, endtime)))
     
     return(aucp)
 }
 
 
-#' Area Under Terminal Concentration Time Curve from T = Last to T = endTime
+#' Area Under Terminal concentration time Curve from T = Last to T = endtime
 #'
 #' This function calculates the area under the terminal phase exponential
-#' from TLast to endTime. This calculation is the integral of the Terminal 
+#' from TLast to endtime. This calculation is the integral of the Terminal 
 #' phase exponential decay function: 
 #' \deqn{\int intercept \ast exp\left ( -\lambda _{z} \ast T\right ) dT = 
 #'     -intercept / \left ( \lambda _{z} \ast exp\left ( \lambda _{z} \ast T\right )\right)}
 #' The partial area under the terminal concentration time curve can be calculated 
-#' by subtracting modeled AUC0Tlast from modeled AUC0endTime.
+#' by subtracting modeled AUC0Tlast from modeled AUC0endtime.
 #' This is intended to be used as an internal function from \code{\link{AUCPartial}}, so no 
-#' data checking is performed so clean data is assumed (see \code{\link{cleanConcTime}}).
+#' data checking is performed so clean data is assumed (see \code{cleanconctime}).
 #'
-#' @param Conc Vector of concentrations
-#' @param Time Vector of times, must be ordered in ascending order and should not have duplicates
-#' @param endTime : single numeric, last time until which area should be calculated
-#' @param numPoints : single numeric, number of points to use for lambdaz calculation
-#' @param lambdaZStats if not \code{NULL}, a list with 9 elements (see details). Must be provided if numPoints is not.
-#' @param usePoints If NULL (default) automatically select, else, logical vector of points to use (\code{TRUE}) for calculation of terminal phase.
-#' @param excPoints Logical vector (\code{FALSE} by default) excludeing \code{TRUE} rows from automatic calculation of terminal phase.
-#' @param useObs : single logical, use observed rather than predicted CLast, defaults to FALSE
-#' @title Area Under Terminal Concentration Time Curve
-#' @return Single numeric with partial area under curve from TLast to endTime
-#' @seealso \code{\link{lambdaZStatistics}} for more about the numPoints parameter
+#' @inheritParams AUCPartial
+#' @title Area Under Terminal concentration time Curve
+#' @return Single numeric with partial area under curve from TLast to endtime
+#' @seealso \code{\link{lambdaZStatistics}} for more about the lamznpt parameter
 #' @author Mango Business Solutions
 #' @keywords math
 
-getTerminalAUC <- function(Conc, Time, endTime, lambdaZStats = NULL, 
-    numPoints = NULL, usePoints = NULL, excPoints = FALSE, minPoints = 3, useObs = FALSE) {
+getTerminalAUC <- function(conc, time, endtime, lambdaZStats = NULL, 
+    lamznpt = NULL, usepoints = NULL, excpoints = FALSE, minpoints = 3, 
+    useObs = FALSE, 
+    maxdiffrsq = 1e-4, minr2adj = 0.8, numhalflife = 1) {
     
-    termAuc <- as.numeric(NA)
+    termAuc <- NA_real_
     
-    if (is.na(endTime)) {
+    if (is.na(endtime)) {
         
         return(termAuc)
     }
     
     if (is.null(lambdaZStats)) {
         
-        # check that numPoints is valid, return NA if it is not  
+        # check that lamznpt is valid, return NA if it is not  
         
-        checkSingleNumeric(numPoints, description = "numPoints", functionName =  "getTerminalAUC")
+        checkSingleNumeric(lamznpt, description = "lamznpt", 
+            functionName =  "getTerminalAUC")
         
-        if( !(numPoints >= minPoints && numPoints <= length(Time) && floor(numPoints) ==  numPoints) ) {
+        if (!(lamznpt >= minpoints && lamznpt <= length(time) && 
+            floor(lamznpt) ==  lamznpt) ) {
             
-            warning(paste("Invalid value of numPoints:", numPoints, "in getTerminalAUC", collapse = " "))
+            warning(paste(
+                    "Invalid value of lamznpt:", lamznpt, 
+                    "in getTerminalAUC", collapse = " "))
             
             return(termAuc)
         }
@@ -266,10 +285,11 @@ getTerminalAUC <- function(Conc, Time, endTime, lambdaZStats = NULL,
     
     if (!is.null(lambdaZStats)) {
         
-        if (!is.null(numPoints)) { warning("both numPoints and lambdaZStats provided to getTerminalAUC, ignoring numPoints") }
+        if (!is.null(lamznpt)) { 
+            warning("both lamznpt and lambdaZStats provided to getTerminalAUC, ignoring lamznpt")
+        }
         
         if (is(lambdaZStats, "list")) {
-            
             warning("lambdaZStats has been unlisted")
             
             lambdaZStats <- unlist(lambdaZStats)
@@ -280,64 +300,67 @@ getTerminalAUC <- function(Conc, Time, endTime, lambdaZStats = NULL,
     } else {
         
         ## Terminal phase calculation 
-        
+        # TODO see ncaComplete
         doPoints <- list(ACTION = "fail")
         
         # T=0 not checked here
         
-        doPoints <- chooseNumPointsAction(Conc = Conc, Time = Time, numPoints = numPoints, 
-            usePoints = usePoints, excPoints = excPoints)
+        doPoints <- chooseNumPointsAction(conc = conc, time = time, lamznpt = lamznpt, 
+            usepoints = usepoints, excpoints = excpoints)
         
         result <- as.numeric(rep(NA, 9))
         
-        lzColNames <- c("Lambdaz", "intercept", "r2", "adjr2", "rhoXY", "tPhaseHalfLife", "LambdazLower", "LambdazUpper", "numPoints")
+        lzColNames <- c("Lambdaz", "intercept", "R2", "R2ADJ", "CORRXY", 
+            "LAMZHL", "LAMZLL", "LAMZUL", "lamznpt")
         
         names(result) <- lzColNames
         
-        numPoints_result <- try(switch(doPoints[["ACTION"]], 
+        lamznpt_result <- try(switch(doPoints[["ACTION"]], 
             
-                # if numPoints is zero or less, suppress terminal phase calculation
+                # if lamznpt is zero or less, suppress terminal phase calculation
+                none = list(lamznpt = NA_real_, result = result),
                 
-                none = list(numPoints = as.numeric(NA), result = result),
+                # if lamznpt is one or more, suppress automatic selection
+                fixed = fixedPoints(conc = conc, time = time, lamznpt = lamznpt, 
+                    minpoints = doPoints[["MINROWSFORLAMBDAZ"]]),
                 
-                # if numPoints is one or more, suppress automatic selection
+                # if lamznpt is NA, perform automatic point selection
+                auto = selectPoints(conc = conc, time = time, 
+                    minpoints = doPoints[["MINROWSFORLAMBDAZ"]], 
+                    method = "ars", excpoints = excpoints, 
+                    maxdiffrsq = maxdiffrsq, minr2adj = minr2adj, numhalflife = numhalflife),
                 
-                fixed = fixedPoints(Conc = Conc, Time = Time, numPoints = numPoints, minPoints = doPoints[["MINROWSFORLAMBDAZ"]]),
-                
-                # if numPoints is NA, perform automatic point selection
-                
-                auto = selectPoints(Conc = Conc, Time = Time, minPoints = doPoints[["MINROWSFORLAMBDAZ"]], method = "ars", excPoints = excPoints),
-                
-                # if usePoints is logical, calculate lambdaz using specified subset of data
-                
-                used = usedPoints(Conc = Conc, Time = Time, usePoints = usePoints, excPoints = excPoints, minPoints = doPoints[["MINROWSFORLAMBDAZ"]]), 
+                # if usepoints is logical, calculate lambdaz using specified subset of data
+                used = usedPoints(conc = conc, time = time, usepoints = usepoints, 
+                    excpoints = excpoints, minpoints = doPoints[["MINROWSFORLAMBDAZ"]]), 
                 
                 # else error
-                
-                stop(paste("Error in getTerminalAUC: doPoints action was", doPoints[["ACTION"]], sep = "", collapse = ""))), 
+                stop(paste("Error in getTerminalAUC: doPoints action was", 
+                        doPoints[["ACTION"]], sep = "", collapse = ""))), 
                 
             silent = TRUE)
         
         # return with error
         
-        if (is(numPoints_result, "try-error")) {
+        if (is(lamznpt_result, "try-error")) {
             
-            stop(paste("error in getTerminalAUC, action in doPoints was", doPoints[["ACTION"]], "message was", numPoints_result, sep = "", collapse = ""))
+            stop(paste("error in getTerminalAUC, action in doPoints was", 
+                    doPoints[["ACTION"]], "message was", lamznpt_result, 
+                    sep = "", collapse = ""))
         }
         
-        if (is.na(numPoints_result$numPoints)) { return(termAuc) }
+        if (is.na(lamznpt_result$lamznpt)) { return(termAuc) }
         
-        lambdaZStats <- unlist(numPoints_result$result)
+        lambdaZStats <- unlist(lamznpt_result$result)
     }
     
-    cLastTLast <- ClastTlast(Conc = Conc, Time = Time)
+    cLastTLast <- ClastTlast(conc = conc, time = time)
         
     intercept <- lambdaZStats["intercept"]
     
     lambdaz <- lambdaZStats["Lambdaz"]
     
-    if(useObs) {
-        
+    if (useObs) {
         logcLastPred <- log(intercept) - lambdaz * cLastTLast$tlast
         
         logadjust <- log(cLastTLast$clast) - logcLastPred
@@ -347,11 +370,10 @@ getTerminalAUC <- function(Conc, Time, endTime, lambdaZStats = NULL,
 
     auc0last <- -intercept / (lambdaz * exp(lambdaz * cLastTLast$tlast))
     
-    auc0end <- -intercept / (lambdaz * exp(lambdaz * endTime))
+    auc0end <- -intercept / (lambdaz * exp(lambdaz * endtime))
     
     termAuc[1] <- auc0end - auc0last
     
     return(termAuc)   
 }
     
-

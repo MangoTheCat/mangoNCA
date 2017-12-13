@@ -2,21 +2,18 @@
 % Please edit documentation in R/lambdaz.R
 \name{getLambdaz}
 \alias{getLambdaz}
-\title{Perform \code{lm} on logConc-Time data}
+\title{Perform \code{lm} on logconc-time data
+
+Calculates lambdaz for a data frame consisting of logconc and time.
+The \code{lm} function is used to fit a linear regression of the last \code{lamznpt}
+concentration against time.  These are counted from (and include)
+the last measurable concentration.}
 \usage{
-getLambdaz(timeConc)
+getLambdaz(timeconc)
 }
 \arguments{
-\item{timeConc}{Data frame with columns logConc and Time used for calculating lambdaz.}
+\item{timeconc}{Data frame with columns logconc and time used for calculating lambdaz.}
 }
 \value{
 \code{"lm"} object to be used by \code{getLambdaZStatistics}.
-}
-\description{
-Calculate lambdaz using lm
-}
-\details{
-Calculates lambdaz for a data frame consisting of logConc and Time.
-The \code{lm} function is used to fit a linear regression of the last \code{numPoints}
-concentration against time.  These are counted from (and include) the last measurable concentration.
 }

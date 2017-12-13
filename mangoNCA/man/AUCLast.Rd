@@ -2,27 +2,25 @@
 % Please edit documentation in R/AUCLast.R
 \name{AUCLast}
 \alias{AUCLast}
-\title{Calculate Area Under Curve Until Last Measurable Concentration}
+\title{Calculate Area Under Curve Until Last Measurable concentration}
 \usage{
-AUCLast(Conc, Time, addT0 = FALSE, Safe = TRUE, inter = "Linear")
+AUCLast(conc, time, addt0 = FALSE, inter = "Linear")
 }
 \arguments{
-\item{Conc}{A numeric vector of concentration values}
+\item{conc}{A numeric vector of concentration values}
 
-\item{Time}{A numeric vector of time values, parallel to \code{Conc} and of the same length.  These should be sorted in ascending order.}
+\item{time}{A numeric vector of time values, parallel to \code{conc} and of the same length.  These should be sorted
+in ascending order.}
 
-\item{addT0}{Single logical value declaring whether T0 should be added if missing provided execution is Safe (default TRUE).}
+\item{addt0}{Single logical value declaring whether T0 should be added if missing (default \code{TRUE}).}
 
-\item{Safe}{Single logical value declaring whether to perform data checks and data cleaning (default is TRUE).}
-
-\item{inter}{Single character stating whether the interpolation method used is \code{"Linear"} (default), 
-\code{"Lin up Log down"} or \code{"Linear Log"} (not case or space sensitive).}
+\item{inter}{Single character stating whether the interpolation method used is \code{"Linear"} (default) or \code{"Linear Log"}}
 }
 \value{
 single numeric - area under the concentration/time curve until the last measurable concentration.
 }
 \description{
-Area Under the Curve to from Time = 0 to Time = Last
+Area Under the Curve to from time = 0 to time = Last
 }
 \details{
 AUCLast calculates the area under a time/concentration curve from the first point up until the last 
@@ -48,15 +46,15 @@ Missing values are removed before further calculations are performed.
 \note{
 The following error checks / processing will be performed:
  \enumerate{
-     \item If \code{Conc} or \code{Time} are of length 1 or 0, a single NA is returned
-     \item \code{Conc} and \code{Time} should be equal length numeric vectors, otherwise an exception will be generated.
+     \item If \code{conc} or \code{time} are of length 1 or 0, a single NA is returned
+     \item \code{conc} and \code{time} should be equal length numeric vectors, otherwise an exception will be generated.
      \item If \code{clast} or \code{tlast} is NA, NA will be returned
      \item There should be no duplicated time entries
  }
 }
 \examples{
 Theoph1 <- subset(Theoph, Subject == 1)
-AUCLast(Theoph1$conc, Theoph1$Time)
+AUCLast(Theoph1$conc, Theoph1$time)
 }
 \author{
 Mango Solutions

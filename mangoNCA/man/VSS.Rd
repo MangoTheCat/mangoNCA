@@ -4,14 +4,12 @@
 \alias{VSS}
 \title{Volume Distribution at Steady-State (observed)}
 \usage{
-VSS(MRT, CL, Safe = TRUE)
+VSS(MRT, CL)
 }
 \arguments{
 \item{MRT}{Single numeric value of time}
 
 \item{CL}{Single numeric value of clearance}
-
-\item{Safe}{Single logical value declaring whether to perform redundant data checks (default is TRUE).}
 }
 \value{
 Single numeric value

@@ -28,7 +28,7 @@ getWhichVersion <-  function()
 }
 
 
-#' Check MangoNca is Initialized
+#' Check mangoNCA is Initialized
 #'
 #' This is a second test used to confirm that R is running correctly.
 #' Returns a data frame with 3 columns and 1 row:

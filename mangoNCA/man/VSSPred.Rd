@@ -2,33 +2,32 @@
 % Please edit documentation in R/VSS.R
 \name{VSSPred}
 \alias{VSSPred}
-\title{Volume Distribution at Steady-State (predicted)}
-\usage{
-VSSPred(Conc, Time, Dose, Dof, numPoints = NULL, Safe = TRUE)
-}
-\arguments{
-\item{Conc}{Vector of concentrations}
+\title{Volume Distribution at Steady-State (predicted)
 
-\item{Time}{Vector of times, must be ordered in ascending order and should not have duplicates}
-
-\item{Dose}{Single numeric with dose amount}
-
-\item{Dof}{duration of infusion}
-
-\item{numPoints}{Number of points to use for the lambda z calculation(s)}
-}
-\value{
-Single numeric value
-}
-\description{
 Function to Calculate Volume of Distribution at Steady State (Predicted)
-}
-\details{
+
 Calculates volume distribution at steady-state (predicted).
 This is a convenience function for when using the R package. 
 \code{\link{ncaComplete}} calls VSS since MRTInfPred and CLPred have already been calculated.
 \code{VSSPred} calls \code{\link{VSS}} after calling \code{\link{MRTInfPredSD}}, 
-\code{\link{AUCinfpred}} and \code{\link{clearance}}.
+\code{\link{AUCInfPred}} and \code{\link{clearance}}.}
+\usage{
+VSSPred(conc, time, dose, duration, lamznpt = NULL)
+}
+\arguments{
+\item{conc}{Vector of conc}
+
+\item{time}{Vector of time, must be ordered in ascending order and should not have duplicates}
+
+\item{dose}{Single numeric value of dose}
+
+\item{duration}{Single numeric value of duration of infusion}
+
+\item{lamznpt}{If \code{NULL} (default) automatically select, else,
+single numeric number of points for calculation of terminal phase.}
+}
+\value{
+Single numeric value
 }
 \note{
 All input checks / error handling for CLPred and MRTInfPredSD apply.   
@@ -37,7 +36,7 @@ The formula used to calculate this quantity is
 }
 \examples{
 Theoph1 <- subset(  Theoph, Subject == 1)
-VSSPred( Conc = Theoph1$conc, Time = Theoph1$Time, Dose = Theoph1$Dose[1], Dof = 3 )
+VSSPred(conc = Theoph1$conc, time = Theoph1$time, dose = Theoph1$Dose[1], duration = 3)
 }
 \author{
 Mango Solutions

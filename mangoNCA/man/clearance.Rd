@@ -2,37 +2,31 @@
 % Please edit documentation in R/clearance.R
 \name{clearance}
 \alias{clearance}
-\title{Clearance}
+\title{Clearance
+
+Calculates Clearance, which is equal to administered dose divided by AUCInf.}
 \usage{
-clearance(AUCInf, Dose, Safe = TRUE)
+clearance(AUCInf, dose)
 }
 \arguments{
 \item{AUCInf}{A numeric value}
 
-\item{Dose}{A numeric value}
-
-\item{Safe}{A single logical}
+\item{dose}{A numeric value}
 }
 \value{
 Single numeric of clearance
-}
-\description{
-Clearance
-}
-\details{
-Calculates Clearance, which is equal to administered Dose divided by AUCInf.
 }
 \note{
 The following additional input processing/checks are performed:
 \enumerate{
      \item \code{AUCInf} must be a numeric vector of length 1, otherwise an exception will be generated.  If
          \code{AUCInf} is \code{NA}, 0 or less, \code{NA} will be returned for Observed
-     \item \code{Dose} must be a numeric vector of length 1, otherwise an exception will be generated.  If
-         \code{Dose} is \code{NA}, 0 or less, \code{NA} will be returned for both
+     \item \code{dose} must be a numeric vector of length 1, otherwise an exception will be generated.  If
+         \code{dose} is \code{NA}, 0 or less, \code{NA} will be returned for both
 }
 }
 \examples{
-clearance(AUCInf = 100, Dose = 10)
+clearance(AUCInf = 100, dose = 10)
 }
 \author{
 Mango Business Solutions

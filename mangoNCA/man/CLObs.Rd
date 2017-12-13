@@ -4,19 +4,19 @@
 \alias{CLObs}
 \title{Apparent Clearance (Observed)}
 \usage{
-CLObs(Conc, Time, Dose, numPoints = NULL)
+CLObs(conc, time, dose, lamznpt = NULL)
 }
 \arguments{
-\item{Conc}{A numeric vector of concentration values}
+\item{conc}{A numeric vector of concentration values}
 
-\item{Time}{A numeric vector of time values, parallel to \code{Conc} and of the same length.  These should be sorted
+\item{time}{A numeric vector of time values, parallel to \code{conc} and of the same length.  These should be sorted
 in ascending order.}
 
-\item{Dose}{A single numeric}
+\item{dose}{A single numeric}
 
-\item{numPoints}{Number of points to use for the lambda z calculation, counted from the last measurable concentration.
-Must be a single integer greater than 1 and less than or equal to the length of \code{Time} and \code{Conc}.
-Default is NULL, numPoints is then calculated by \code{selectPoints}.}
+\item{lamznpt}{Number of points to use for the lambda z calculation, counted from the last measurable concentration.
+Must be a single integer greater than 1 and less than or equal to the length of \code{time} and \code{conc}.
+Default is NULL, lamznpt is then calculated by \code{selectPoints}.}
 }
 \value{
 apparent clearance (single numeric)
@@ -28,13 +28,13 @@ Calculates apparent clearance (observed), which is equal to administered dose di
 The following additional input processing/checks are performed:
 \enumerate{
      \item All checks for \code{AUCInfObs} apply
-     \item \code{Dose} must be a numeric vector of length 1, otherwise an exception will be generated.  If
-         \code{Dose} is \code{NA}, 0 or less, \code{NA} will be returned 
+     \item \code{dose} must be a numeric vector of length 1, otherwise an exception will be generated.  If
+         \code{dose} is \code{NA}, 0 or less, \code{NA} will be returned 
 }
 }
 \examples{
 Theoph1 <- subset(  Theoph, Subject == 1)
-CLObs( Conc = Theoph1$conc, Time = Theoph1$Time, Dose = Theoph1$Dose[1])
+CLObs( conc = Theoph1$conc, time = Theoph1$time, dose = Theoph1$Dose[1])
 }
 \author{
 Mango Solutions

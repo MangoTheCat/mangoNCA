@@ -2,29 +2,34 @@
 % Please edit documentation in R/ncaComplete.R
 \name{chooseNumPointsAction}
 \alias{chooseNumPointsAction}
-\title{Choose how to handle numPoints}
+\title{Choose how to handle lamznpt}
 \usage{
-chooseNumPointsAction(Conc = Conc, Time = Time,
-  numPoints = as.numeric(NA), usePoints = NULL, excPoints = FALSE)
+chooseNumPointsAction(conc = conc, time = time, lamznpt = NA_real_,
+  usepoints = NULL, excpoints = FALSE)
 }
 \arguments{
-\item{Conc}{Vector of concentrations}
+\item{conc}{Vector of conc}
 
-\item{Time}{Vector of times, must be ordered in ascending order and should not have duplicates}
+\item{time}{Vector of time, must be ordered in ascending order and should not have duplicates}
 
-\item{numPoints}{single numeric value declaring number of points to use}
+\item{lamznpt}{If \code{NULL} (default) automatically select, else,
+single numeric number of points for calculation of terminal phase.}
 
-\item{usePoints}{If \code{NULL} (default) automatically select, else, logical vector of points to use for calculation of terminal phase. Used rows are flagged by usePoints as \code{TRUE}.}
+\item{usepoints}{If \code{NULL} (default) automatically select, else,
+logical vector of points to use for calculation of terminal phase.
+Used rows are flagged by usepoints as \code{TRUE}.}
 
-\item{Logical}{vector (\code{FALSE} by default) excludeing \code{TRUE} rows from automatic calculation of terminal phase.}
+\item{excpoints}{If \code{NULL} (default) automatically select, else,
+logical vector of points to exclude from automatic calculation of terminal phase.
+Excluded rows are flagged by excpoints as \code{TRUE}.}
 }
 \value{
-length 2 list with elements ACTION, a single character value, and MINROWSFORLAMBDAZ, a single numeric with value 3
+length 2 list with elements ACTION, a single character value,
+and MINROWSFORLAMBDAZ, a single numeric with value 3
 }
 \description{
-Decide whether to use or automatically calculate numPoints
+Decide whether to use or automatically calculate lamznpt
 }
 \author{
 Mango Solutions
 }
-\keyword{math}

@@ -2,47 +2,65 @@
 % Please edit documentation in R/AUCPartial.R
 \name{getTerminalAUC}
 \alias{getTerminalAUC}
-\title{Area Under Terminal Concentration Time Curve}
+\title{Area Under Terminal concentration time Curve}
 \usage{
-getTerminalAUC(Conc, Time, endTime, lambdaZStats = NULL, numPoints = NULL,
-  usePoints = NULL, excPoints = FALSE, minPoints = 3, useObs = FALSE)
+getTerminalAUC(conc, time, endtime, lambdaZStats = NULL, lamznpt = NULL,
+  usepoints = NULL, excpoints = FALSE, minpoints = 3, useObs = FALSE,
+  maxdiffrsq = 1e-04, minr2adj = 0.8, numhalflife = 1)
 }
 \arguments{
-\item{Conc}{Vector of concentrations}
+\item{conc}{Vector of concentrations}
 
-\item{Time}{Vector of times, must be ordered in ascending order and should not have duplicates}
+\item{time}{Vector of times, must be ordered in ascending order and should not have duplicates}
 
-\item{endTime}{: single numeric, last time until which area should be calculated}
+\item{endtime}{: last time at which area should be calculated}
 
-\item{lambdaZStats}{if not \code{NULL}, a list with 9 elements (see details). Must be provided if numPoints is not.}
+\item{lambdaZStats}{if not \code{NULL}, a list with 9 elements (see details). Must be provided if lamznpt is not.}
 
-\item{numPoints}{: single numeric, number of points to use for lambdaz calculation}
+\item{lamznpt}{: Number of points to use for lambda-z calculation.}
 
-\item{usePoints}{If NULL (default) automatically select, else, logical vector of points to use (\code{TRUE}) for calculation of terminal phase.}
+\item{usepoints}{If NULL (default) automatically select, else, logical vector of points to use (\code{TRUE}) for calculation of terminal phase.}
 
-\item{excPoints}{Logical vector (\code{FALSE} by default) excludeing \code{TRUE} rows from automatic calculation of terminal phase.}
+\item{excpoints}{Logical vector (\code{FALSE} by default) excludeing \code{TRUE} rows from automatic calculation of terminal phase.}
 
-\item{useObs}{: single logical, use observed rather than predicted CLast, defaults to FALSE}
+\item{minpoints}{single numeric, the fewest points for which a linear model fit should be attempted (default 3)}
+
+\item{useObs}{single logical, use observed rather than predicted CLast, 
+(default FALSE)}
+
+\item{maxdiffrsq}{single numeric in range 0-1 The Adjusted R-squared method 
+will select the number of points
+for terminal phase calculation for the set of trailing points with the 
+most points that is within maxdiffrsq of the maximum adjusted R-squared 
+(default 1e-4)}
+
+\item{minr2adj}{single numeric Minimum value permitted for adjusted R-squared for lambda-z to be calculated. 
+If NA or NULL, lambda-z calculation is supressed. (default 0.8)}
+
+\item{numhalflife}{single numeric Multiplier for terminal phase half life, 
+when checking that terminal phase half life is not an excessively large portion of the AUC0_Inf. 
+To always return lambda-z, set to 0.
+To never return lambda-z set to Inf, NULL or NA. (default 1)}
 }
 \value{
-Single numeric with partial area under curve from TLast to endTime
+Single numeric with partial area under curve from TLast to endtime
 }
 \description{
-Area Under Terminal Concentration Time Curve from T = Last to T = endTime
+Area Under Terminal concentration time Curve from T = Last to T = endtime
 }
 \details{
 This function calculates the area under the terminal phase exponential
-from TLast to endTime. This calculation is the integral of the Terminal 
+from TLast to endtime. This calculation is the integral of the Terminal 
 phase exponential decay function: 
 \deqn{\int intercept \ast exp\left ( -\lambda _{z} \ast T\right ) dT = 
     -intercept / \left ( \lambda _{z} \ast exp\left ( \lambda _{z} \ast T\right )\right)}
 The partial area under the terminal concentration time curve can be calculated 
-by subtracting modeled AUC0Tlast from modeled AUC0endTime.
+by subtracting modeled AUC0Tlast from modeled AUC0endtime.
 This is intended to be used as an internal function from \code{\link{AUCPartial}}, so no 
-data checking is performed so clean data is assumed (see \code{\link{cleanConcTime}}).
+data checking is performed so clean data is assumed (see \code{cleanconctime}).
 }
 \seealso{
-\code{\link{lambdaZStatistics}} for more about the numPoints parameter
+\code{\link{lambdaZStatistics}} for more about the lamznpt parameter
 }
 \author{
 Mango Business Solutions

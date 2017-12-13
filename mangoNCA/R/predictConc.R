@@ -7,65 +7,65 @@
 ###############################################################################
 
 
-#' Predict Concentration at Time
+#' Predict concentration at time
 #'
-#' Calculate Concentration at Time.
+#' Calculate concentration at time.
 #'
-#' @param Conc Vector of concentrations.
-#' @param Time Vector of times, must be ordered in ascending order and should not have duplicates.
-#' @param predTime time at which Conc should be calculated. if predTime is NA, NA is returned.
-#' @param numPoints Number of points to use for lambda-z calculation.
-#' @param lambdaZStats if not \code{NULL}, a list with 9 elements (see details). Must be provided if numPoints is not.
-#' @param usePoints If \code{NULL} (default) automatically select, else, logical vector of points to use for calculation of terminal phase. Used rows are flagged by usePoints as \code{TRUE}.
-#' @param excPoints If \code{NULL} (default) automatically select, else, logical vector of points to exclude from automatic calculation of terminal phase. Excluded rows are flagged by excPoints as \code{TRUE}.
-#' @param addT0 single logical declaring whether to add T = 0 and remove missing values if TRUE or generate exception if FALSE (default is FALSE)
-#' @title Predict Concentration at Time
+#' @param conc Vector of concentrations.
+#' @param time Vector of times, must be ordered in ascending order and should not have duplicates.
+#' @param predtime time at which conc should be calculated. if predtime is NA, NA is returned.
+#' @param lamznpt Number of points to use for lambda-z calculation.
+#' @param lambdaZStats if not \code{NULL}, a list with 9 elements (see details). Must be provided if lamznpt is not.
+#' @param usepoints If \code{NULL} (default) automatically select, else, logical vector of points to use for calculation of terminal phase. Used rows are flagged by usepoints as \code{TRUE}.
+#' @param excpoints If \code{NULL} (default) automatically select, else, logical vector of points to exclude from automatic calculation of terminal phase. Excluded rows are flagged by excpoints as \code{TRUE}.
+#' @param addt0 single logical declaring whether to add T = 0 and remove missing values if TRUE or generate exception if FALSE (default is FALSE)
+#' @title Predict concentration at time
 #' @return Single numeric of predicted concentration at prediction time
 #' @export
-#' @seealso \code{\link{lambdaZStatistics}} for more about the numPoints parameter
+#' @seealso \code{\link{lambdaZStatistics}} for more about the lamznpt parameter
 #' @author Mango Business Solutions
 #' @keywords math
 
 
-predictConc <- function(Conc, Time, predTime, numPoints = NULL, lambdaZStats = NULL, 
-    usePoints = NULL, excPoints = FALSE, minPoints = 3, addT0 = FALSE)
+predictConc <- function(conc, time, predtime, lamznpt = NULL, lambdaZStats = NULL, 
+    usepoints = NULL, excpoints = FALSE, minpoints = 3, addt0 = FALSE)
 {
     
-    checkOrderedVector(Time, description = "Time", functionName =  "predictConc")
+    checkOrderedVector(time, description = "time", functionName =  "predictConc")
     
-    checkSingleNumeric(predTime, description = "predTime", functionName =  "predictConc")
+    checkSingleNumeric(predtime, description = "predtime", functionName =  "predictConc")
     
-    predConc <- as.numeric(NA)
+    predconc <- as.numeric(NA)
     
-    if (is.na(predTime)) {
+    if (is.na(predtime)) {
     
-        return(predConc)
+        return(predconc)
     }    
     
     if (is.null(lambdaZStats)) {
         
-        # check that numPoints is valid, return NA if it is not  
+        # check that lamznpt is valid, return NA if it is not  
         
-        checkSingleNumeric(numPoints, description = "numPoints", functionName =  "predictConc")
+        checkSingleNumeric(lamznpt, description = "lamznpt", functionName =  "predictConc")
         
-        if( !(numPoints >= minPoints && numPoints <= length(Time) && floor(numPoints) ==  numPoints) ) {
+        if( !(lamznpt >= minpoints && lamznpt <= length(time) && floor(lamznpt) ==  lamznpt) ) {
             
-            warning(paste("Invalid value of numPoints:", numPoints, "in predictConc", collapse = " "))
+            warning(paste("Invalid value of lamznpt:", lamznpt, "in predictConc", collapse = " "))
             
-            return(predConc)
+            return(predconc)
         }
     }
     
-    if(!is.null(usePoints)) { checkLogicalSameLength(usePoints, Conc, "usePoints", "Concentration", "predictConc") }
+    if(!is.null(usepoints)) { checkLogicalSameLength(usepoints, conc, "usepoints", "concentration", "predictConc") }
     
-    if (identical(excPoints, FALSE)) { excPoints <- rep(FALSE, times = length(Time)) }
+    if (identical(excpoints, FALSE)) { excpoints <- rep(FALSE, times = length(time)) }
     
-    checkLogicalSameLength(excPoints, Time, "excPoints", "Time", "predictConc")
+    checkLogicalSameLength(excpoints, time, "excpoints", "time", "predictConc")
 
     
     # Add T = 0 if it is missing and remove missing values if TRUE, otherwise throw error
     
-    cleanData <- try(cleanConcTime(Conc = Conc, Time = Time, addT0 = addT0), silent = TRUE)
+    cleanData <- try(cleanconctime(conc = conc, time = time, addt0 = addt0), silent = TRUE)
     
     if( is(cleanData, "try-error") ) {
     
@@ -73,49 +73,49 @@ predictConc <- function(Conc, Time, predTime, numPoints = NULL, lambdaZStats = N
         
     }
     
-    if (sum(cleanData$Conc, na.rm = TRUE) == 0) {
+    if (sum(cleanData$conc, na.rm = TRUE) == 0) {
         
-        return(predConc)
+        return(predconc)
     }
     
-    Conc <- cleanData$Conc
+    conc <- cleanData$conc
     
-    Time <- cleanData$Time
+    time <- cleanData$time
     
     ###############################################################################
     
-    if (predTime < min(Time)) {
+    if (predtime < min(time)) {
     
-        return(predConc)
+        return(predconc)
     }
     
     ###############################################################################
     
-    # if predTime is actually an element of the Time vector, we can return data
+    # if predtime is actually an element of the time vector, we can return data
     
-    if( predTime %in% Time )
+    if( predtime %in% time )
     {
-        # predTimeIndex : integer with index of predTime inside Time
+        # predtimeIndex : integer with index of predtime inside time
         
-        predTimeIndex <- match(predTime, Time )
+        predtimeIndex <- match(predtime, time )
         
-        predConc <- Conc[predTimeIndex]
+        predconc <- conc[predtimeIndex]
         
-        return(predConc)
+        return(predconc)
     }
 
     
     ###############################################################################
     
-    # if predTime > tlast, we need to extrapolate a new concentration element.   
+    # if predtime > tlast, we need to extrapolate a new concentration element.   
     
-    cLastTLast <- ClastTlast(Conc = Conc, Time = Time )
+    cLastTLast <- ClastTlast(conc = conc, time = time )
     
-    if(predTime > cLastTLast$tlast) {
+    if(predtime > cLastTLast$tlast) {
     
         if (!is.null(lambdaZStats)) {
             
-            if (!is.null(numPoints)) { warning("both numPoints and lambdaZStats provided to predictConc, ignoring numPoints") }
+            if (!is.null(lamznpt)) { warning("both lamznpt and lambdaZStats provided to predictConc, ignoring lamznpt") }
             
             if (is(lambdaZStats, "list")) {
                 
@@ -128,9 +128,9 @@ predictConc <- function(Conc, Time, predTime, numPoints = NULL, lambdaZStats = N
             
         } else {
             
-            excPoints <- cleanData$excPoints
+            excpoints <- cleanData$excpoints
             
-            if (!is.null(usePoints))  { usePoints <- cleanData$usePoints }
+            if (!is.null(usepoints))  { usepoints <- cleanData$usepoints }
             
             
             ## Terminal phase calculation 
@@ -139,32 +139,32 @@ predictConc <- function(Conc, Time, predTime, numPoints = NULL, lambdaZStats = N
             
             # T=0 not checked here
             
-            doPoints <- chooseNumPointsAction(Conc = Conc, Time = Time, numPoints = numPoints, 
-                usePoints = usePoints, excPoints = excPoints)
+            doPoints <- chooseNumPointsAction(conc = conc, time = time, lamznpt = lamznpt, 
+                usepoints = usepoints, excpoints = excpoints)
             
             result <- as.numeric(rep(NA, 9))
             
-            lzColNames <- c("Lambdaz", "intercept", "r2", "adjr2", "rhoXY", "tPhaseHalfLife", "LambdazLower", "LambdazUpper", "numPoints")
+            lzColNames <- c("Lambdaz", "intercept", "R2", "R2ADJ", "CORRXY", "LAMZHL", "LAMZLL", "LAMZUL", "lamznpt")
             
             names(result) <- lzColNames
             
-            numPoints_result <- try(switch(doPoints[["ACTION"]], 
+            lamznpt_result <- try(switch(doPoints[["ACTION"]], 
                 
-                    # if numPoints is zero or less, suppress terminal phase calculation
+                    # if lamznpt is zero or less, suppress terminal phase calculation
                     
-                    none = list(numPoints = as.numeric(NA), result = result),
+                    none = list(lamznpt = as.numeric(NA), result = result),
                     
-                    # if numPoints is one or more, suppress automatic selection
+                    # if lamznpt is one or more, suppress automatic selection
                     
-                    fixed = fixedPoints(Conc = Conc, Time = Time, numPoints = numPoints, minPoints = doPoints[["MINROWSFORLAMBDAZ"]]),
+                    fixed = fixedPoints(conc = conc, time = time, lamznpt = lamznpt, minpoints = doPoints[["MINROWSFORLAMBDAZ"]]),
                     
-                    # if numPoints is NA, perform automatic point selection
+                    # if lamznpt is NA, perform automatic point selection
                     
-                    auto = selectPoints(Conc = Conc, Time = Time, minPoints = doPoints[["MINROWSFORLAMBDAZ"]], method = "ars", excPoints = excPoints),
+                    auto = selectPoints(conc = conc, time = time, minpoints = doPoints[["MINROWSFORLAMBDAZ"]], method = "ars", excpoints = excpoints),
                     
-                    # if usePoints is logical, calculate lambdaz using specified subset of data
+                    # if usepoints is logical, calculate lambdaz using specified subset of data
                     
-                    used = usedPoints(Conc = Conc, Time = Time, usePoints = usePoints, excPoints = excPoints, minPoints = doPoints[["MINROWSFORLAMBDAZ"]]), 
+                    used = usedPoints(conc = conc, time = time, usepoints = usepoints, excpoints = excpoints, minpoints = doPoints[["MINROWSFORLAMBDAZ"]]), 
                     
                     # else error
                     
@@ -174,52 +174,52 @@ predictConc <- function(Conc, Time, predTime, numPoints = NULL, lambdaZStats = N
             
             # return with error
             
-            if (is(numPoints_result, "try-error")) {
+            if (is(lamznpt_result, "try-error")) {
                 
-                stop(paste("error in predictConc, action in doPoints was", doPoints[["ACTION"]], "message ws", numPoints_result, sep = "", collapse = ""))
+                stop(paste("error in predictConc, action in doPoints was", doPoints[["ACTION"]], "message ws", lamznpt_result, sep = "", collapse = ""))
             }
             
-            if (is.na(numPoints_result$numPoints)) { return(predConc) }
+            if (is.na(lamznpt_result$lamznpt)) { return(predconc) }
             
-            lambdaZStats <- numPoints_result$result
+            lambdaZStats <- lamznpt_result$result
         }
         
         
         
-        # calculate the extrapolated concentration based on Concentration at infinity (predicted)
+        # calculate the extrapolated concentration based on concentration at infinity (predicted)
         
-        predConc[1] <- lambdaZStats["intercept"] * exp(-lambdaZStats["Lambdaz"] * predTime)
+        predconc[1] <- lambdaZStats["intercept"] * exp(-lambdaZStats["Lambdaz"] * predtime)
         
-        return(predConc)
+        return(predconc)
     }
     
     ###############################################################################
     
-    # otherwise predTime lies between 2 data points
+    # otherwise predtime lies between 2 data points
     
-    # find the last element which predTime exceeds
-    # t1Index the index of the largest time less than predTime
+    # find the last element which predtime exceeds
+    # t1Index the index of the largest time less than predtime
     # t2Index is next next time after t1Index
     
-    t1Index <- tail( which(Time < predTime), n = 1 )
+    t1Index <- tail( which(time < predtime), n = 1 )
     
     t2Index <- t1Index + 1
     
-    # t1, t2 = left time, right time (of interval containing predTime)
-    # c1, c2 = left concentration, right concentration (of interval containing predTime)
+    # t1, t2 = left time, right time (of interval containing predtime)
+    # c1, c2 = left concentration, right concentration (of interval containing predtime)
     
-    t1 <- Time[t1Index]
+    t1 <- time[t1Index]
     
-    t2 <- Time[t2Index]
+    t2 <- time[t2Index]
     
-    c1 <- Conc[t1Index]
+    c1 <- conc[t1Index]
     
-    c2 <- Conc[t2Index] 
+    c2 <- conc[t2Index] 
     
     # cInter is the interpolated concentration
     
-    predConc <- c1 + abs( (predTime - t1) / (t2 - t1) ) * (c2 - c1)
+    predconc <- c1 + abs( (predtime - t1) / (t2 - t1) ) * (c2 - c1)
     
-    return(predConc)
+    return(predconc)
     
 }

@@ -1,18 +1,19 @@
 Package: mangoNCA
 Type: Package
 Title: Mango Non-Compartmental Analysis
-Version: 1.1.111932
-Date: 2013-9-2 14:23:52
-Author: Mango Business Solutions
-Maintainer: Mango Business Solutions <sales@mango-solutions.com>
+Version: 2.0.1
+Date: 2017-11-13
+Authors@R: c(person("", "Mango Solutions", email = "sales@mango-solutions.com", role = "cph"),
+    person("Phil", "Lobb", role = "aut"),
+    person("Francisco", "Gochez", role = c("aut", "cre")),
+    person("Chris", "Campbell", email = "ccampbell@mango-solutions.com", role = "aut"))
+Maintainer: Chris Campbell <sales@mango-solutions.com>
 Description: This package is a Non-Compartmental Analysis (NCA) parameter calculation engine 
     which returns pharmacokinetic parameters for concentration-time data. 
-    The interface function is ncaAnalysis. This function performs data checking then, 
-    provided that there are more than three rows of data, passes the data to ncaComplete. 
-    This function calls functions to return the PK parameters.
-Suggests: RUnit (>= 0.4.26)
+    The interface function is getNCAnalysis.
+Suggests: testthat
 Depends: methods, stats, R (>= 2.11.0)
 License: MIT + file LICENSE
-URL: http://www.mango-solutions.com
-Copyright: 2013 Mango Business Solutions
+LazyData: true
+Copyright: 2013-2017 Mango Business Solutions
 RoxygenNote: 6.0.1

@@ -4,40 +4,42 @@
 \alias{fixedPoints}
 \title{Fixed Points for Calculating Terminal Rate Constant}
 \usage{
-fixedPoints(Conc, Time, numPoints, excPoints = FALSE, minPoints = 3,
-  Safe = TRUE)
+fixedPoints(conc, time, lamznpt, excpoints = FALSE, minpoints = 3)
 }
 \arguments{
-\item{Conc}{Vector of concentrations.}
+\item{conc}{Vector of conc}
 
-\item{Time}{Vector of times, must be ordered in ascending order and should not have duplicates.}
+\item{time}{Vector of time, must be ordered in ascending order and should not have duplicates}
 
-\item{excPoints}{Logical vector (\code{FALSE} by default) excludeing \code{TRUE} rows from automatic calculation of terminal phase.}
+\item{lamznpt}{If \code{NULL} (default) automatically select, else,
+single numeric number of points for calculation of terminal phase.}
 
-\item{minPoints}{Minimum number of points to use for the Lambdaz calculation(s), 3 by default. Single positive integer.}
+\item{excpoints}{If \code{NULL} (default) automatically select, else,
+logical vector of points to exclude from automatic calculation of terminal phase.
+Excluded rows are flagged by excpoints as \code{TRUE}.}
 
-\item{Safe}{Single logical value declaring whether to perform redundant data checks (default is TRUE).}
-
-\item{minPoints}{Single numeric declaring minimum acceptable number of rows for linear model.}
+\item{minpoints}{Minimum number of points to use for the lambda-z calculation(s),
+3 by default. Single positive integer.}
 }
 \value{
-List consisting of numPoints, a single numeric value, and result, a length 9 numeric vector.
+List consisting of lamznpt, a single numeric value, and result,
+a length 9 numeric vector.
 }
 \description{
-Use Fixed Number of Trailing Points for Terminal Rate Constant (Lambdaz) Calculation.
+Use Fixed Number of Trailing Points for Terminal Rate Constant (lambda-z) Calculation.
 }
 \details{
-Returns input numPoints and results for Terminal Rate Constant (Lambdaz) calculation
-fixedPoints calls \code{\link{lambdaZStatistics}} to perform regressions using the specified number of trailing non-zero rows
+Returns input lamznpt and results for Terminal Rate Constant (lambda-z) calculation
+fixedPoints calls \code{\link{lambdaZStatistics}} to perform regressions
+using the specified number of trailing non-zero rows
 Rows prior to Cmax may be used.
 Exclusion of rows prior to the end of infusion is not currently implemented.
 Zero or missing values will error.
 }
 \examples{
-     Theoph1 <- subset(Theoph, Subject == 1)
-     fixedPoints(Conc = Theoph1$conc, Time = Theoph1$Time, numPoints = 3)
+Theoph1 <- subset(Theoph, Subject == 1)
+mangoNCA:::fixedPoints(conc = Theoph1$conc, time = Theoph1$Time, lamznpt = 3)
 }
 \author{
 Mango Solutions
 }
-\keyword{math}

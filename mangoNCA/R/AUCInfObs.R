@@ -1,13 +1,10 @@
-# SVN revision: $Rev:  $
-# Date of last change: $LastChangedDate: 24/07/2013 $
-# Last changed by: $LastChangedBy: ccampbell $
-# 
+ 
 # Original author: ccampbell
 # Copyright Mango Solutions, Chippenham, UK
 ###############################################################################
 
 
-#' Area under the Concentration Time Curve from T = 0 to T = Inf using extrapolation from Observed Clast
+#' Area under the concentration time Curve from T = 0 to T = Inf using extrapolation from Observed Clast
 #' 
 #' AUCInfObs calculates the area under a time/concentration (or first moment) curve from the first point up to  
 #' "infinity" using the linear trapezium rule.  This is performed by calculating the area under the concentration-time
@@ -15,41 +12,40 @@
 #' AUC which is the area bounded by the exponential decay curve with rate constant -lambdaz from observed Clast.  
 #' Analogous calculations for AUMC are used if appropriate. \cr
 #' There are two methods for calculating AUC and AUMC.
-#' Lambdaz stats can be calculated within the function. In this case, numPoints should be provided.
-#' numPoints must be a single integer greater than minPonts (which should be at least 2) and less than or equal to the length of \code{Time} and \code{Conc}.
-#' numPoints is NULL by default. Must be provided if lambdaZStats is not.
+#' LAMZstats can be calculated within the function. In this case, lamznpt should be provided.
+#' lamznpt must be a single integer greater than minPonts (which should be at least 2) and less than or equal to the length of \code{time} and \code{conc}.
+#' lamznpt is NULL by default. Must be provided if lambdaZStats is not.
 #' The lambdaz statistics may be provided directly to this function; it should be a length 9 numeric vector with named elements:
 #' \enumerate{
 #'      \item Lambdaz
 #'      \item intercept
-#'      \item r2
-#'      \item adjr2
-#'      \item rhoXY
-#'      \item tPhaseHalfLife
-#'      \item LambdazLower
-#'      \item LambdazUpper
-#'      \item numPoints
+#'      \item R2
+#'      \item R2ADJ
+#'      \item CORRXY
+#'      \item LAMZHL
+#'      \item LAMZLL
+#'      \item LAMZUL
+#'      \item lamznpt
 #' }
 #' Use \code{unlist} to pass \code{lambdaZStatistics} output to this function.
 #'
 #' @title Calculate Area Under Curve or Moment Curve To "Infinity" (Observed)
-#' @param Conc A numeric vector of concentration values
-#' @param Time A numeric vector of time values, parallel to \code{Conc} and of the same length.  These should be sorted
+#' @param conc A numeric vector of concentration values
+#' @param time A numeric vector of time values, parallel to \code{conc} and of the same length.  These should be sorted
 #' in ascending order.
-#' @param numPoints Number of points to use for the lambdaz calculation, counted from the end of the concentration/time vectors.
-#' @param lambdaZStats if not \code{NULL}, a list with 9 elements (see details). Must be provided if numPoints is not.
+#' @param lamznpt Number of points to use for the lambdaz calculation, counted from the end of the concentration/time vectors.
+#' @param lambdaZStats if not \code{NULL}, a list with 9 elements (see details). Must be provided if lamznpt is not.
 #' @param calculation Must be either the string "standard" or "moment".  If the former, calculates the standard area under
 #' the curve.  For the latter, it will calculate the area under the moment curve
-#' @param minPoints Minimum number of points to use for the Lambdaz calculation(s), 3 by default. Single positive integer.
-#' @param addT0 Single logical value declaring whether T0 should be added if missing provided execution is Safe (default \code{TRUE}).
-#' @param Safe Single logical value declaring whether to perform data checks and data cleaning (default is \code{TRUE}).
+#' @param minpoints Minimum number of points to use for the LAMZcalculation(s), 3 by default. Single positive integer.
+#' @param addt0 Single logical value declaring whether T0 should be added if missing (default \code{TRUE}).
 #' @param inter Single character stating whether the interpolation method used is \code{"Linear"} (default) or \code{"Linear Log"}
 #' @return A numeric vector with a single element holding the area under the concentration/time curve until "infinity".
 #' @note The following error checks / processing will be performed:
 #'  \enumerate{
 #'      \item all error checks for \code{AUCLast} apply
 #'      \item If any relevant lambda z calculations are NA, NA will be returned
-#'      \item An exception will be generated if numPoints is not a single integer numeric between 2 and  \code{length(Conc)} (inclusive)
+#'      \item An exception will be generated if lamznpt is not a single integer numeric between 2 and  \code{length(conc)} (inclusive)
 #'  }
 #' The algorithm for calculating the observed AUC is as follows:
 #' \deqn{AUCPredInf = AUCLast + Clast / \lambda_z}   
@@ -63,39 +59,35 @@
 #' @keywords math
 #' @examples 
 #'      Theoph1 <- subset(Theoph, Subject == 1)
-#'      AUCInfObs(Conc = Theoph1$conc, Time = Theoph1$Time, numPoints = 4, calculation = "standard")
+#'      AUCInfObs(conc = Theoph1$conc, time = Theoph1$time, lamznpt = 4, calculation = "standard")
 
 
-AUCInfObs <- function(Conc, Time, numPoints = NULL, lambdaZStats = NULL, calculation = c("standard", "moment"), minPoints = 3, addT0 = FALSE, Safe = TRUE, inter = "Linear")
-{    
-    checkSingleLogical(Safe, description = "Safe", functionName = "AUCInfObs")
+AUCInfObs <- function(conc, time, lamznpt = NULL, lambdaZStats = NULL, 
+    calculation = c("standard", "moment"), minpoints = 3, addt0 = FALSE, inter = "Linear") { 
     
-    if (Safe) {
-        
-        checkNumericSameLength(Time, Conc, "Time", "Concentration", "AUCInfObs")
-        
-        checkOrderedVector(Time, description = "Time", functionName = "AUCInfObs")
-        
-        checkSingleLogical(addT0, description = "addT0", functionName = "AUCInfObs")
-        
-        checkSingleCharacter(inter, description = "inter", functionName = "AUCInfObs")
-    }
+    checkNumericSameLength(time, conc, "time", "concentration", "AUCInfObs")
+    
+    checkOrderedVector(time, description = "time", functionName = "AUCInfObs")
+    
+    checkSingleLogical(addt0, description = "addt0", functionName = "AUCInfObs")
+    
+    checkSingleCharacter(inter, description = "inter", functionName = "AUCInfObs")
     
     # calc will hold the chosen method of calculation
     
     calc <- match.arg(calculation)
     
-    aucio <- as.numeric(NA)
+    aucio <- NA_real_
     
     if (is.null(lambdaZStats)) {
         
-        # check that numPoints is valid, return NA if it is not  
+        # check that lamznpt is valid, return NA if it is not  
         
-        checkSingleNumeric(numPoints, description = "numPoints")
+        checkSingleNumeric(lamznpt, description = "lamznpt")
         
-        if( !(numPoints >= minPoints && numPoints <= length(Time) && floor(numPoints) ==  numPoints) ) {
+        if (!(lamznpt >= minpoints && lamznpt <= length(time) && floor(lamznpt) ==  lamznpt) ) {
             
-            warning(paste("Invalid value of numPoints:", numPoints, "in AUCInfObs", collapse = " "))
+            warning(paste("Invalid value of lamznpt:", lamznpt, "in AUCInfObs", collapse = " "))
             
             return(aucio)
         }
@@ -103,23 +95,23 @@ AUCInfObs <- function(Conc, Time, numPoints = NULL, lambdaZStats = NULL, calcula
     
     # Add T = 0 if it is missing and remove missing values
     
-    timeConc <- try(stripTrailingZeros(Conc = Conc, Time = Time, addT0 = addT0), silent = TRUE)
+    timeconc <- try(stripTrailingZeros(conc = conc, time = time, addt0 = addt0), silent = TRUE)
     
-    if( is(timeConc, "try-error")) {
+    if( is(timeconc, "try-error")) {
         
-        stop(paste("Error during data cleaning in AUCInfObs", as.character(timeConc), collapse = "\n"))
+        stop(paste("Error during data cleaning in AUCInfObs", as.character(timeconc), collapse = "\n"))
     }
     
-    # timeConc : data.frame with columns consisting of the last numPoints values of Time and Conc
+    # timeconc : data.frame with columns consisting of the last lamznpt values of time and conc
     
-    if (sum(timeConc$Conc, na.rm = TRUE) == 0) {
+    if (sum(timeconc$conc, na.rm = TRUE) == 0) {
         
         return(aucio)
     }
     
     if (!is.null(lambdaZStats)) {
         
-        if (!is.null(numPoints)) { warning("both numPoints and lambdaZStats provided to AUCInfObs, ignoring numPoints") }
+        if (!is.null(lamznpt)) { warning("both lamznpt and lambdaZStats provided to AUCInfObs, ignoring lamznpt") }
         
         if (is(lambdaZStats, "list")) {
             
@@ -134,20 +126,20 @@ AUCInfObs <- function(Conc, Time, numPoints = NULL, lambdaZStats = NULL, calcula
         
         # check that there are at least 3 rows after Cmax, otherwise return NA  
         
-        if (!testTrailPoints(Conc = timeConc$Conc, Time = timeConc$Time, minPoints = minPoints) ) {
+        if (!testTrailPoints(conc = timeconc$conc, time = timeconc$time, minpoints = minpoints) ) {
         
             return(aucio)
         }
         
         # lamdbdaZStats : list with value of lambda z and related statistics
         
-        lambdaZStats <- unlist(lambdaZStatistics(Conc = timeConc$Conc, Time = timeConc$Time, numPoints = numPoints))
+        lambdaZStats <- unlist(lambdaZStatistics(conc = timeconc$conc, time = timeconc$time, lamznpt = lamznpt))
     
     }
     
     # calculate cLast and tLast
     
-    cLast <- ClastTlast(Conc = timeConc$Conc, Time = timeConc$Time)
+    cLast <- ClastTlast(conc = timeconc$conc, time = timeconc$time)
     
     tLast <- cLast[["tlast"]]
     
@@ -157,9 +149,9 @@ AUCInfObs <- function(Conc, Time, numPoints = NULL, lambdaZStats = NULL, calcula
 
     switch(calc, "standard" = {
             
-            # aucLast : single numeric holding value of AUCLast(Conc, Time)  
+            # aucLast : single numeric holding value of AUCLast(conc, time)  
          
-            aucLast <- AUCLast(Conc = timeConc$Conc, Time = timeConc$Time, addT0 = addT0, inter = inter) 
+            aucLast <- AUCLast(conc = timeconc$conc, time = timeconc$time, addt0 = addt0, inter = inter) 
             
             # aucExtraObs : single numeric with extrapolated AUC
             
@@ -168,9 +160,9 @@ AUCInfObs <- function(Conc, Time, numPoints = NULL, lambdaZStats = NULL, calcula
             aucio[1] <- aucLast + aucExtraObs
         },
         "moment" = {
-            # aumcLast : single numeric holding value of AUCLast(Conc * Time, Time) (area under moment curve)
+            # aumcLast : single numeric holding value of AUCLast(conc * time, time) (area under moment curve)
             
-            aumcLast <- AUCLast(Conc = timeConc$Conc * timeConc$Time , Time = timeConc$Time, addT0 = addT0, inter = inter)
+            aumcLast <- AUCLast(conc = timeconc$conc * timeconc$time , time = timeconc$time, addt0 = addt0, inter = inter)
             
             # aumcExtraObs : single numeric with extrapolated AUMC
             

@@ -1,252 +1,281 @@
-# SVN revision: $Rev:  $
-# Date of last change: $LastChangedDate: 19/08/2013 $
-# Last changed by: $LastChangedBy: ccampbell $
-# 
+
 # Original author: ccampbell
 # Copyright Mango Solutions, Chippenham, UK
 ###############################################################################
 
-
-#' Concentration at Time at T = firstTime and T = secondTime
+#' concentration at time at T = firsttime and T = secondtime
 #'
-#' This function calculates Concentration at Time
+#' This function calculates concentration at time
 #' Returns a data frame with 1 row containing columns:
 #'  \enumerate{
-#'      \item \code{firstTime}  
-#'      \item \code{secondTime} 
-#'      \item \code{firstConc}
-#'      \item \code{secondConc}
-#'      \item \code{numPoints} 
-#'      \item \code{Error} 
+#'      \item \code{firsttime}  
+#'      \item \code{secondtime} 
+#'      \item \code{firstconc}
+#'      \item \code{secondconc}
+#'      \item \code{LAMZNPT} 
+#'      \item \code{ERROR} 
 #'  }
 #'
-#' @title Concentration at Time at T = firstTime and T = secondTime
-#' @param Conc Vector of concentrations
-#' @param Time Vector of times, must be ordered in ascending order and should not have duplicates
-#' @param firstTime single numeric value, first time at which Concentration should be calculated
-#' @param secondTime single numeric value, second time at which Concentration should be calculated
-#' @param numPoints single numeric value declaring number of points to use
-#' @param usePoints If \code{NULL} (default) automatically select, else, logical vector of points to use for calculation of terminal phase. Used rows are flagged by usePoints as \code{TRUE}.
-#' @param excPoints If \code{NULL} (default) automatically select, else, logical vector of points to exclude from automatic calculation of terminal phase. Excluded rows are flagged by excPoints as \code{TRUE}.
-#' @param Safe single logical value declaring whether error checking should be performed
-#' @param inter Single character stating whether the interpolation method used is \code{"Linear"} (default), \code{"Lin up Log down"} or \code{"Linear Log"}
+#' @title concentration at time at T = firsttime and T = secondtime
+#' @inheritParams AUCInfObs
+#' @param firsttime single numeric value, first time at which concentration should be calculated
+#' @param secondtime single numeric value, second time at which concentration should be calculated
+#' @param usepoints If \code{NULL} (default) automatically select, else, 
+#' logical vector of points to use for calculation of terminal phase. 
+#' Used rows are flagged by usepoints as \code{TRUE}.
+#' @param excpoints If \code{NULL} (default) automatically select, else, 
+#' logical vector of points to exclude from automatic calculation of terminal phase. 
+#' Excluded rows are flagged by excpoints as \code{TRUE}.
+#' @param maxdiffrsq single numeric in range 0-1 The Adjusted R-squared method 
+#' will select the number of points
+#' for terminal phase calculation for the set of trailing points with the 
+#' most points that is within maxdiffrsq of the maximum adjusted R-squared 
+#' (default 1e-4)
+#' @param minr2adj single numeric Minimum value permitted for adjusted 
+#' R-squared for lambda-z to be calculated. 
+#' If NA or NULL, lambda-z calculation is supressed. (default 0.8)
+#' @param numhalflife single numeric Multiplier for terminal phase half life, 
+#' when checking that terminal phase half life is not an excessively large 
+#' portion of the AUC0_Inf. 
+#' To always return lambda-z, set to 0.
+#' To never return lambda-z set to Inf, NULL or NA. (default 1)
 #' @return Data frame
 #' @export
 #' @author Mango Solutions
 #' @keywords math
 
-getConcentration <- function(Conc = NULL, Time = NULL, firstTime = NA, secondTime = NA, 
-    numPoints = NULL, usePoints = NULL, excPoints = NULL, Safe = TRUE, inter = "Linear")  {
-
-    # Initialise data check return object
+getConcentration <- function(conc = NULL, time = NULL, firsttime = NA, secondtime = NA, 
+    lamznpt = NULL, usepoints = NULL, excpoints = NULL, inter = "Linear", 
+    maxdiffrsq = 1e-4, minr2adj = 0.8, numhalflife = 1)  {
     
-    ROutput <- c(rep(as.numeric(NA), times = 5), 0)
+    error <- ""
+    
+    # Initialise data check return object
+    ROutput <- c(rep(NA_real_, times = 5), 0)
     
     names(ROutput) <- c(
-        "firstTime", 
-        "secondTime",
-        "firstConc",
-        "secondConc",
-        "numPoints", 
-        "Error")
+        "firsttime", 
+        "secondtime",
+        "firstconc",
+        "secondconc",
+        "LAMZNPT", 
+        "ERROR")
         
         
-    # Check data for gross errors but allow firstTime and secondTime to be NA or NULL
+    # Check data for gross errors but allow firsttime and secondtime to be NA or NULL
 
-    check01 <- try(checkOrderedVector(Time, description = "Time", functionName = "getConcentration"), silent = TRUE)
+    check01 <- try(checkOrderedVector(time, description = "time", 
+            functionName = "getConcentration"), silent = TRUE)
     
-    check02 <- try(checkNumericSameLength(Time, Conc, "Time", "Concentration", "getConcentration"), silent = TRUE)
+    check02 <- try(checkNumericSameLength(time, conc, 
+            "time", "concentration", "getConcentration"), silent = TRUE)
     
     # return if gross data errors present
     
-    ROutput_Error <- paste(check01, check02, sep = "", collapse = "")
+    error <- paste(check01, check02, sep = "", collapse = "")
     
-    if( ROutput_Error != "" ) {
+    if (!identical(x = error, y = "")) {
         
         # coerce to data frame and return
-        
         ROutput <- as.data.frame(as.list(ROutput))
         
-        ROutput["ROutput_Error"] <- ROutput_Error
+        ROutput["ERROR"] <- error
   
         return(ROutput)
         
     }
     
-    if (all(is.na(firstTime))) { firstTime <- as.numeric(NA) }
+    if (all(is.na(firsttime))) { firsttime <- NA_real_ }
     
-    check03 <- try(checkSingleNumeric(firstTime, description = "firstTime", "getConcentration"), silent = TRUE)
+    check03 <- try(checkSingleNumeric(firsttime, description = "firsttime", "getConcentration"), silent = TRUE)
     
-    if (all(is.na(secondTime))) { secondTime <- as.numeric(NA) }
+    if (all(is.na(secondtime))) { secondtime <- NA_real_ }
     
-    check04 <- try(checkSingleNumeric(secondTime, description = "secondTime", "getConcentration"), silent = TRUE)
+    check04 <- try(checkSingleNumeric(secondtime, 
+            description = "secondtime", "getConcentration"), silent = TRUE)
     
-    if (is.null(numPoints)) { 
-        numPoints <- as.numeric(NA)
+    if (is.null(lamznpt)) { 
+        lamznpt <- NA_real_
     }
     
-    check05 <- try(checkSingleNumeric(numPoints, description = "Number of Points", "getConcentration"), silent = TRUE)
+    check05 <- try(checkSingleNumeric(lamznpt, 
+            description = "Number of Points", "getConcentration"), silent = TRUE)
     
-    check06 <- try(if (any(is.na(Conc))) { stop("Missing values in Conc") }, silent = TRUE)
+    check06 <- try(if (any(is.na(conc))) { stop("Missing values in conc") }, silent = TRUE)
     
-    check07 <- try(if (any(is.na(Time))) { stop("Missing values in Time") }, silent = TRUE)
+    check07 <- try(if (any(is.na(time))) { stop("Missing values in time") }, silent = TRUE)
     
-    if(!is.null(usePoints)) { 
+    if(!is.null(usepoints)) { 
         
-        check08 <- try(checkLogicalSameLength(usePoints, Conc, "usePoints", "Concentration", "getConcentration"), silent = TRUE)
+        check08 <- try(checkLogicalSameLength(usepoints, conc, 
+                "usepoints", "concentration", "getConcentration"), silent = TRUE)
         
     } else {
         
         check08 <- NULL
     }
     
-    if(is.null(excPoints)) { 
+    if (is.null(excpoints)) { 
         
-        excPoints <- rep(FALSE, times = length(Time))
+        excpoints <- rep(FALSE, times = length(time))
     }
  
-    check09 <- try(checkLogicalSameLength(excPoints, Conc, "excPoints", "Concentration", "getConcentration"), silent = TRUE)
+    check09 <- try(checkLogicalSameLength(excpoints, conc, 
+            "excpoints", "concentration", "getConcentration"), silent = TRUE)
 
     check10 <- try(checkSingleCharacter(inter, "inter", "getConcentration"), silent = TRUE)
     
+    check11 <- try(checkSingleNumeric(maxdiffrsq, 
+            description = "max difference in adj R-squared for greatest number of points", 
+            functionName = "getConcentration"), silent = TRUE)
+    
+    check12 <- try(checkSingleNumeric(minr2adj, 
+            description = "min adj R-squared which allows lambda-z to be returned", 
+            functionName = "getConcentration"), silent = TRUE)
+    
+    check13 <- try(checkSingleNumeric(numhalflife, 
+            description = "minimum proportion of halflife permitted for lambda-z data range", 
+            functionName = "getConcentration"), silent = TRUE)
+    
     # return if gross data errors present
     
-    ROutput_Error <- paste(check03, check04, check05, check06, check07, check08, check09, check10, sep = "", collapse = "")
+    error <- paste(check03, check04, check05, check06, check07, 
+        check08, check09, check10, check11, check12, check13, sep = "", collapse = "")
     
-    if( ROutput_Error != "" ) {
+    if (!identical(x = error, y = "")) {
         
         # coerce to dataframe
-        
         ROutput <- as.data.frame(as.list(ROutput))
         
-        ROutput["Error"] <- ROutput_Error
+        ROutput["ERROR"] <- error
         
         return(ROutput)
-        
     }
     
-    ROutput["firstTime"] <- firstTime
+    ROutput["firsttime"] <- firsttime
     
-    ROutput["secondTime"] <- secondTime
+    ROutput["secondtime"] <- secondtime
     
-    # if addT0 is TRUE fix data errors (add T = 0 to data if it is missing and remove missing values)
+    # if addt0 is TRUE fix data errors (add T = 0 to data if it is missing and remove missing values)
     # otherwise throw exception if data errors are present
     # if no rows are returned by stripTrailingZeros, return empty data frame without error
     
-    cleanData <- try(stripTrailingZeros(Conc = Conc, Time = Time, usePoints = usePoints, 
-        excPoints = excPoints, addT0 = FALSE, checkT0 = TRUE), silent = TRUE)
+    cleanData <- try(stripTrailingZeros(conc = conc, time = time, usepoints = usepoints, 
+        excpoints = excpoints, addt0 = FALSE, checkT0 = TRUE), silent = TRUE)
     
-    if (is(cleanData, "try-error") || identical(nrow(cleanData), as.integer(0)) || sum(cleanData$Conc, na.rm = TRUE) == 0) {
+    if (is(cleanData, "try-error") || identical(nrow(cleanData), as.integer(0)) || sum(cleanData$conc, na.rm = TRUE) == 0) {
         
         if (is(cleanData, "try-error")) {
         
-            ROutput_Error <- paste(ROutput_Error, capture.output(show(cleanData)), collapse = "\n")
+            error <- paste(error, capture.output(show(cleanData)), collapse = "\n")
             
         } else {
             
             warning("sum zero, or zero rows returned from stripTrailingZeros in getConcentration")
             
-            ROutput_Error <- 0
+            error <- 0
         }
         
         # return
         
         ROutput <- as.data.frame(as.list(ROutput))
         
-        ROutput["ROutput_Error"] <- ROutput_Error
+        ROutput["ERROR"] <- error
         
         return(ROutput)
-        
     }
 
-    Conc <- cleanData$Conc
+    conc <- cleanData$conc
     
-    Time <- cleanData$Time
+    time <- cleanData$time
     
-    excPoints <- cleanData$excPoints
+    excpoints <- cleanData$excpoints
     
-    if (!is.null(usePoints))  { usePoints <- cleanData$usePoints }
+    if (!is.null(usepoints))  { usepoints <- cleanData$usepoints }
   
     # calculate number of points to use for lambdaz calculation
-    
+    # TODO see ncaComplete **
     doPoints <- list(ACTION = "fail")
     
-    doPoints <- chooseNumPointsAction(Conc = Conc, Time = Time, numPoints = numPoints, 
-        usePoints = usePoints, excPoints = excPoints)
+    doPoints <- chooseNumPointsAction(conc = conc, time = time, lamznpt = lamznpt, 
+        usepoints = usepoints, excpoints = excpoints)
     
     result <- as.numeric(rep(NA, 9))
     
-    lzColNames <- c("Lambdaz", "intercept", "r2", "adjr2", "rhoXY", "tPhaseHalfLife", "LambdazLower", "LambdazUpper", "numPoints")
+    lzColNames <- c("Lambdaz", "intercept", "R2", "R2ADJ", "CORRXY", "LAMZHL", 
+        "LAMZLL", "LAMZUL", "lamznpt")
     
     names(result) <- lzColNames
     
-    numPoints_result <- try(switch(doPoints[["ACTION"]], 
+    lamznpt_result <- try(switch(doPoints[["ACTION"]], 
         
-            # if numPoints is zero or less, suppress terminal phase calculation
+            # if lamznpt is zero or less, suppress terminal phase calculation
+            none = list(lamznpt = NA_real_, result = result),
             
-            none = list(numPoints = as.numeric(NA), result = result),
+            # if lamznpt is one or more, suppress automatic selection
+            fixed = fixedPoints(conc = conc, time = time, lamznpt = lamznpt, excpoints = excpoints, 
+                minpoints = doPoints[["MINROWSFORLAMBDAZ"]]),
             
-            # if numPoints is one or more, suppress automatic selection
+            # if lamznpt is NA, perform automatic point selection
+            auto = selectPoints(conc = conc, time = time, 
+                minpoints = doPoints[["MINROWSFORLAMBDAZ"]], method = "ars", 
+                maxdiffrsq = maxdiffrsq, minlambdaz = 0, 
+                minr2adj = minr2adj, numhalflife = numhalflife,
+                excpoints = excpoints),
             
-            fixed = fixedPoints(Conc = Conc, Time = Time, numPoints = numPoints, excPoints = excPoints, minPoints = doPoints[["MINROWSFORLAMBDAZ"]]),
-            
-            # if numPoints is NA, perform automatic point selection
-            
-            auto = selectPoints(Conc = Conc, Time = Time, minPoints = doPoints[["MINROWSFORLAMBDAZ"]], method = "ars", excPoints = excPoints),
-            
-            # if usePoints is logical, calculate lambdaz using specified subset of data
-            
-            used = usedPoints(Conc = Conc, Time = Time, usePoints = usePoints, excPoints = excPoints, minPoints = doPoints[["MINROWSFORLAMBDAZ"]]), 
+            # if usepoints is logical, calculate lambdaz using specified subset of data
+            used = usedPoints(conc = conc, time = time, usepoints = usepoints, excpoints = excpoints, 
+                minpoints = doPoints[["MINROWSFORLAMBDAZ"]]), 
             
             # else error
-            
-            stop(paste("Error in getConcentration: doPoints action was", doPoints[["ACTION"]], sep = "", collapse = ""))), 
+            stop(paste("Error in getConcentration: doPoints action was", 
+                    doPoints[["ACTION"]], sep = "", collapse = ""))), 
         
         silent = TRUE)
     
     # return with error
-    
-    if (is(numPoints_result, "try-error")) {
+    if (is(lamznpt_result, "try-error")) {
         
-        ROutput_Error <- paste(ROutput_Error, numPoints_result, sep = "", collapse = "")
+        error <- paste(error, lamznpt_result, sep = "", collapse = "")
         
-        ROutput["Error"] <- ROutput_Error
+        ROutput["ERROR"] <- error
         
         return(ROutput)
     }
     
-    # calculate firstConc and secondConc
+    # calculate firstconc and secondconc
     
-    firstConc <- try(predictConc(Conc = Conc, Time = Time, predTime = firstTime, lambdaZStats = numPoints_result$result), silent = TRUE)
+    firstconc <- try(predictConc(conc = conc, time = time, predtime = firsttime, 
+        lambdaZStats = lamznpt_result$result), silent = TRUE)
     
-    secondConc <- try(predictConc(Conc = Conc, Time = Time, predTime = secondTime, lambdaZStats = numPoints_result$result), silent = TRUE)
+    secondconc <- try(predictConc(conc = conc, time = time, predtime = secondtime, 
+        lambdaZStats = lamznpt_result$result), silent = TRUE)
     
-    if (is(firstConc, "try-error")) {
+    if (is(firstconc, "try-error")) {
         
-        ROutput_Error <- paste(ROutput_Error, firstConc, sep = "", collapse = "")
+        error <- paste(error, firstconc, sep = "", collapse = "")
     }
 
-    if (is(secondConc, "try-error")) {
+    if (is(secondconc, "try-error")) {
         
-        ROutput_Error <- paste(ROutput_Error, secondConc, sep = "", collapse = "")
+        error <- paste(error, secondconc, sep = "", collapse = "")
     }
     
-    if (ROutput_Error == "") {
+    if (identical(x = error, y = "")) {
         
-        ROutput_Error <- 0
+        error <- 0
         
-        ROutput["firstConc"] <- firstConc
+        ROutput["firstconc"] <- firstconc
         
-        ROutput["secondConc"] <- secondConc
+        ROutput["secondconc"] <- secondconc
         
-        ROutput["numPoints"] <- numPoints_result$result["numPoints"]
+        ROutput["LAMZNPT"] <- lamznpt_result$result["lamznpt"]
     }
     
     ROutput <- as.data.frame(as.list(ROutput))
     
-    ROutput["Error"] <- ROutput_Error
+    ROutput["ERROR"] <- error
     
     return(ROutput)
-    
 }
 

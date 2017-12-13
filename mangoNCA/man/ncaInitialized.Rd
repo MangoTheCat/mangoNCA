@@ -13,7 +13,7 @@ ncaInitialized(rVersionMinor = 14.1)
 data frame
 }
 \description{
-Check MangoNca is Initialized
+Check mangoNCA is Initialized
 }
 \details{
 This is a second test used to confirm that R is running correctly.

@@ -2,39 +2,39 @@
 % Please edit documentation in R/predictConc.R
 \name{predictConc}
 \alias{predictConc}
-\title{Predict Concentration at Time}
+\title{Predict concentration at time}
 \usage{
-predictConc(Conc, Time, predTime, numPoints = NULL, lambdaZStats = NULL,
-  usePoints = NULL, excPoints = FALSE, minPoints = 3, addT0 = FALSE)
+predictConc(conc, time, predtime, lamznpt = NULL, lambdaZStats = NULL,
+  usepoints = NULL, excpoints = FALSE, minpoints = 3, addt0 = FALSE)
 }
 \arguments{
-\item{Conc}{Vector of concentrations.}
+\item{conc}{Vector of concentrations.}
 
-\item{Time}{Vector of times, must be ordered in ascending order and should not have duplicates.}
+\item{time}{Vector of times, must be ordered in ascending order and should not have duplicates.}
 
-\item{predTime}{time at which Conc should be calculated. if predTime is NA, NA is returned.}
+\item{predtime}{time at which conc should be calculated. if predtime is NA, NA is returned.}
 
-\item{numPoints}{Number of points to use for lambda-z calculation.}
+\item{lamznpt}{Number of points to use for lambda-z calculation.}
 
-\item{lambdaZStats}{if not \code{NULL}, a list with 9 elements (see details). Must be provided if numPoints is not.}
+\item{lambdaZStats}{if not \code{NULL}, a list with 9 elements (see details). Must be provided if lamznpt is not.}
 
-\item{usePoints}{If \code{NULL} (default) automatically select, else, logical vector of points to use for calculation of terminal phase. Used rows are flagged by usePoints as \code{TRUE}.}
+\item{usepoints}{If \code{NULL} (default) automatically select, else, logical vector of points to use for calculation of terminal phase. Used rows are flagged by usepoints as \code{TRUE}.}
 
-\item{excPoints}{If \code{NULL} (default) automatically select, else, logical vector of points to exclude from automatic calculation of terminal phase. Excluded rows are flagged by excPoints as \code{TRUE}.}
+\item{excpoints}{If \code{NULL} (default) automatically select, else, logical vector of points to exclude from automatic calculation of terminal phase. Excluded rows are flagged by excpoints as \code{TRUE}.}
 
-\item{addT0}{single logical declaring whether to add T = 0 and remove missing values if TRUE or generate exception if FALSE (default is FALSE)}
+\item{addt0}{single logical declaring whether to add T = 0 and remove missing values if TRUE or generate exception if FALSE (default is FALSE)}
 }
 \value{
 Single numeric of predicted concentration at prediction time
 }
 \description{
-Predict Concentration at Time
+Predict concentration at time
 }
 \details{
-Calculate Concentration at Time.
+Calculate concentration at time.
 }
 \seealso{
-\code{\link{lambdaZStatistics}} for more about the numPoints parameter
+\code{\link{lambdaZStatistics}} for more about the lamznpt parameter
 }
 \author{
 Mango Business Solutions

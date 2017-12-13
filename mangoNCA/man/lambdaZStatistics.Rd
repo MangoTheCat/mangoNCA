@@ -2,65 +2,61 @@
 % Please edit documentation in R/lambdaz.R
 \name{lambdaZStatistics}
 \alias{lambdaZStatistics}
-\title{Calculate lambdaz and related parameters}
+\title{Calculate lambdaz and related parameters
+
+Calculates the lambdaz estimate and related parameters.
+The \code{lm} function is used to fit a linear regression of the last \code{lamznpt}
+concentration against time.
+These are counted from (and include) the last measurable concentration.
+The number of points does not necessarily correspond to the index of the input dataset since rows may be removed at a previous step.
+Components of the \code{"lm"} object are then used to compute lambdaz and related statistics.
+Returns a list of single numeric values:
+\enumerate{
+     \item \code{LAMZ}: The negation of the slope of the regression line of the last
+     \item \code{intercept}: The exponential of the intercept term of the regression
+     \item \code{R2}: The R^2 of the regression fit
+     \item \code{R2ADJ}: The adjusted R^2 of the regression fit
+     \item \code{CORRXY}: The correlation coefficient of the observed fit.
+     \item \code{LAMZHL}: Terminal phase half-life, equal to ln(2) / Lambdaz
+     \item \code{LAMZLL}: Lower bound of time used in lambda z calculation
+     \item \code{LAMZUL}: Upper bound of time used in lambda z calculation
+     \item \code{lamznpt}: Number of points used in calculation
+}
+Note that the following additional error checking / additional
+processing will be performed on the inputs:
+\itemize{
+    \item Missing elements (NA) of the time and concentration vectors will be removed during regression
+        (a missing entry in one vector will cause the corresponding value in the other to be removed as well)
+    \item If the sum of the (last \code{lamznpt}) concentrations is 0, missing values will be returned for all elements of the returned list.
+    \item \code{conc} and \code{time} must be numeric vectors of equal length, or an exception will be generated
+    \item \code{conc} has fewer than 2 elements, NA will be returned for all values
+    \item If the linear regression fails for some reason, a warning will be emitted and NA will be returned for all values
+    \item An exception will be generated if lamznpt is not a single integer numeric between 3 and  \code{length(conc)} (inclusive)
+}
+This function is called from \code{selectPoints} that removes rows containing Cmax before passing them to \code{lambdaZStatistics}.
+Therefore there is the option to supress Cmax check by setting the argument checkcmax to \code{FALSE}}
 \usage{
-lambdaZStatistics(Conc, Time, numPoints = 3, Safe = TRUE,
-  checkCmax = TRUE, minPoints = 3)
+lambdaZStatistics(conc, time, lamznpt = 3, checkcmax = TRUE,
+  minpoints = 3L, doaic = FALSE)
 }
 \arguments{
-\item{Conc}{numeric vector of concentrations}
+\item{conc}{Vector of conc}
 
-\item{Time}{numeric vector of time points.  Must be sorted in ascending order}
+\item{time}{Vector of time, must be ordered in ascending order and should not have duplicates}
 
-\item{numPoints}{Number of points to use for the linear regression, counted from the end of the concentration/time vectors.
-Must be a single integer greater than minPoints and less than or equal to the length of \code{Time} and \code{Conc}.}
+\item{lamznpt}{If \code{NULL} (default) automatically select, else,
+single numeric number of points for calculation of terminal phase.}
 
-\item{Safe}{Single logical value declaring whether to perform redundant data checks (default is TRUE).}
+\item{checkcmax}{Single logical value declaring whether Cmax is included in the data (default is TRUE).}
 
-\item{checkCmax}{Single logical value declaring whether Cmax is included in the data (default is TRUE).}
+\item{minpoints}{Single numeric declaring minimum acceptable number of rows for linear model. Default is 3, minimum accepted value is 2.}
 
-\item{minPoints}{Single numeric declaring minimum acceptable number of rows for linear model. Default is 3, minimum accepted value is 2.}
+\item{doaic}{single logical should RSS and AIC be returned in addition to other stats (default is FALSE).}
 }
 \value{
 A list with a set of length 1 numeric vectors.
 }
-\description{
-Try to Calculate lambdaz and Related Parameters
-}
-\details{
-Calculates the lambdaz estimate and related parameters.
-The \code{lm} function is used to fit a linear regression of the last \code{numPoints}
-concentration against time.  
-These are counted from (and include) the last measurable concentration. 
-The number of points does not necessarily correspond to the index of the input dataset since rows may be removed at a previous step.
-Components of the \code{"lm"} object are then used to compute lambdaz and related statistics.
-Returns a list of single numeric values:
-\enumerate{ 
-     \item \code{Lambdaz}: The negation of the slope of the regression line of the last 
-     \item \code{intercept}: The exponential of the intercept term of the regression
-     \item \code{r2}: The R^2 of the regression fit
-     \item \code{adjr2}: The adjusted R^2 of the regression fit
-     \item \code{rhoXY}: The correlation coefficient of the observed fit.
-     \item \code{tPhaseHalfLife}: Terminal phase half-life, equal to ln(2) / Lambdaz 
-     \item \code{LambdazLower}: Lower bound of time used in lambda z calculation
-     \item \code{LambdazUpper}: Upper bound of time used in lambda z calculation
-     \item \code{numPoints}: Number of points used in calculation
-}
-Note that the following additional error checking / additional processing will be performed on the inputs:
-\enumerate{
-     \item Missing elements (NA) of the time and concentration vectors will be removed during regression
-         (a missing entry in one vector will cause the corresponding value in the other to be removed as well)
-     \item If the sum of the (last \code{numPoints}) concentrations is 0, missing values will be returned for all elements of the returned list.
-     \item \code{Conc} and \code{Time} must be numeric vectors of equal length, or an exception will be generated
-     \item \code{Conc} has fewer than 2 elements, NA will be returned for all values
-     \item If the linear regression fails for some reason, a warning will be emitted and NA will be returned for all values
-     \item An exception will be generated if numPoints is not a single integer numeric between 3 and  \code{length(Conc)} (inclusive) 
-}
-This function is called from \code{selectPoints} that removes rows containing Cmax before passing them to \code{lambdaZStatistics}.
-Therefore there is the option to supress Cmax check by setting the argument checkCmax to \code{FALSE}
-}
 \examples{
-     Theoph2 <- subset(Theoph, Subject == 2)
-     lambdazStatistics(Theoph2$conc, Theoph2$Time)
+Theoph2 <- subset(Theoph, Subject == 2)
+lambdaZStatistics(conc = Theoph2$conc, time = Theoph2$Time)
 }
-\keyword{math}

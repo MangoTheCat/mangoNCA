@@ -2,14 +2,14 @@
 % Please edit documentation in R/clasttlast.R
 \name{ClastTlast}
 \alias{ClastTlast}
-\title{Calculate Last Measurable Concentration}
+\title{Calculate Last Measurable concentration}
 \usage{
-ClastTlast(Conc, Time)
+ClastTlast(conc, time)
 }
 \arguments{
-\item{Conc}{numeric vector of concentrations}
+\item{conc}{numeric vector of concentrations}
 
-\item{Time}{numeric vector of time points (should be of equal length to Conc, and sorted).}
+\item{time}{numeric vector of time points (should be of equal length to conc, and sorted).}
 }
 \value{
 list with numeric scalar components \code{clast}, \code{tlast} and \code{index}
@@ -21,16 +21,16 @@ with that concentration.
 \note{
 The following error checks / processing will be performed:
  \enumerate{
-     \item If \code{Conc} or \code{Time} are of length 0, a single NA is returned
-     \item \code{Conc} and \code{Time} should be equal length numeric vectors, otherwise an exception will be generated
+     \item If \code{conc} or \code{time} are of length 0, a single NA is returned
+     \item \code{conc} and \code{time} should be equal length numeric vectors, otherwise an exception will be generated
      \item It is assumed that these times and concentrations come from a single curve 
      \item time should be sorted
-     \item If the sum of \code{Conc} (after omitting missing values) is 0, returned values are NA
+     \item If the sum of \code{conc} (after omitting missing values) is 0, returned values are NA
  }
 }
 \examples{
 Theoph1 <- subset(  Theoph, Subject == 1)
-ClastTlast( Conc = Theoph1$conc, Time = Theoph1$Time )
+ClastTlast( conc = Theoph1$conc, time = Theoph1$time )
 }
 \keyword{math}
 \keyword{utils}

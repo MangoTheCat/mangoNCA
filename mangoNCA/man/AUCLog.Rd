@@ -4,12 +4,12 @@
 \alias{AUCLog}
 \title{Calculate AUC Using Logarithmic Trapezoidal Rule}
 \usage{
-AUCLog(Conc, Time)
+AUCLog(conc, time)
 }
 \arguments{
-\item{Conc}{numeric vector of concentrations}
+\item{conc}{numeric vector of concentrations}
 
-\item{Time}{numeric vector of time points (same length as and parallel to Conc).
+\item{time}{numeric vector of time points (same length as and parallel to conc).
 These elements should be sorted in ascending order, otherwise an exception will be generated.}
 }
 \value{
@@ -33,17 +33,17 @@ For a given time interval (t1:t2), the AUC can be calculated as follows:
 It is assumed that these times and concentrations come from a single curve. 
 The following error checks / processing will be performed:
  \enumerate{
-     \item If \code{Conc} or \code{Time} are of length 1 or 0, a single NA is returned
-     \item \code{Conc} and \code{Time} should be equal length numeric vectors, 
+     \item If \code{conc} or \code{time} are of length 1 or 0, a single NA is returned
+     \item \code{conc} and \code{time} should be equal length numeric vectors, 
      otherwise an exception will be generated
-     \item if \code{Time[i]} or \code{Conc[i]} is \code{NA} and \code{auc =  AUCLin(Conc,Time)}, 
+     \item if \code{time[i]} or \code{conc[i]} is \code{NA} and \code{auc =  AUCLin(conc,time)}, 
      then \code{auc[i]} and \code{auc[i - 1]} will be \code{NA}.
-     \item If \code{Conc[i]} equals \code{Conc[i + 1]}, linear interpolation will be used
+     \item If \code{conc[i]} equals \code{conc[i + 1]}, linear interpolation will be used
  }
 }
 \examples{
 Theoph2 <- subset(Theoph, Subject == 2)
-x <- MangoNca:::AUCLog( Theoph2$conc, Theoph2$Time ) 
+x <- mangoNCA:::AUCLog( Theoph2$conc, Theoph2$time ) 
 sum(x) # 
 }
 \keyword{math}

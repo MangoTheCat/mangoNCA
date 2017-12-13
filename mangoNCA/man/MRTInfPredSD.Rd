@@ -2,27 +2,43 @@
 % Please edit documentation in R/MRTInfSD.R
 \name{MRTInfPredSD}
 \alias{MRTInfPredSD}
-\title{Calculate Mean Residence Time to infinity (predicted) for steady-state data, model M3}
+\title{Calculate Mean Residence time to infinity (predicted) for steady-state data, model M3}
 \usage{
-MRTInfPredSD(Conc, Time, numPoints, Dof = 0, addT0 = FALSE)
+MRTInfPredSD(conc, time, duration = 0, lamznpt = NULL,
+  lambdaZStats = NULL, usepoints = NULL, excpoints = FALSE,
+  minpoints = 3, addt0 = FALSE, inter = "Linear", useObs = FALSE)
 }
 \arguments{
-\item{Conc}{Vector of concentrations}
+\item{conc}{Vector of concentrations}
 
-\item{Time}{Vector of times.  Must be sorted, and without duplicates}
+\item{time}{Vector of times, must be ordered in ascending order and should not have duplicates}
 
-\item{numPoints}{Number of points to use for lambda z calculation. See \code{\link{lambdaZStatistics}}}
+\item{duration}{Duration of infusion, single numeric value}
 
-\item{Dof}{Duration of infusion, single numeric value}
+\item{lamznpt}{: Number of points to use for lambda-z calculation.}
 
-\item{addT0}{Single logical value determining whether T = 0 should be added}
+\item{lambdaZStats}{if not \code{NULL}, a list with 9 elements (see details). Must be provided if lamznpt is not.}
+
+\item{usepoints}{If NULL (default) automatically select, else, logical vector of points to use (\code{TRUE}) for calculation of terminal phase.}
+
+\item{excpoints}{Logical vector (\code{FALSE} by default) excludeing \code{TRUE} rows from automatic calculation of terminal phase.}
+
+\item{minpoints}{single numeric, the fewest points for which a linear model fit should be attempted (default 3)}
+
+\item{addt0}{single logical, should T=0, C=0 be added to the input data if T0 is missing? (default \code{FALSE})}
+
+\item{inter}{Single character stating whether the interpolation method used 
+is \code{"Linear"} (default), \code{"Lin up Log down"} or \code{"Linear Log"}}
+
+\item{useObs}{single logical, use observed rather than predicted CLast, 
+(default FALSE)}
 }
 \value{
 A single numeric vector.  The value returned is:
-\deqn{\frac{AUMCInfPred}{AUCInfPred} - \frac{Dof}{2}}
+\deqn{\frac{AUMCInfPred}{AUCInfPred} - \frac{duration}{2}}
 }
 \description{
-Mean Residence Time (Single Dose) Predicted
+Mean Residence time (Single dose) Predicted
 }
 \details{
 Calculates the mean residence time to infinity (predicted), for steady-state models of type "M3".

@@ -4,28 +4,26 @@
 \alias{AUCInfPred}
 \title{Calculate Area Under Curve or Moment Curve To "Infinity" (Predicted)}
 \usage{
-AUCInfPred(Conc, Time, numPoints = NULL, lambdaZStats = NULL,
-  calculation = c("standard", "moment"), minPoints = 3, addT0 = FALSE,
-  Safe = TRUE, inter = "Linear")
+AUCInfPred(conc, time, lamznpt = NULL, lambdaZStats = NULL,
+  calculation = c("standard", "moment"), minpoints = 3, addt0 = FALSE,
+  inter = "Linear")
 }
 \arguments{
-\item{Conc}{A numeric vector of concentration values}
+\item{conc}{A numeric vector of concentration values}
 
-\item{Time}{A numeric vector of time values, parallel to \code{Conc} and of the same length.  These should be sorted
+\item{time}{A numeric vector of time values, parallel to \code{conc} and of the same length.  These should be sorted
 in ascending order.}
 
-\item{numPoints}{Number of points to use for the lambda z calculation, counted from the end of the concentration/time vectors.}
+\item{lamznpt}{Number of points to use for the lambdaz calculation, counted from the end of the concentration/time vectors.}
 
-\item{lambdaZStats}{if not \code{NULL}, a list with 9 elements (see details). Must be provided if numPoints is not.}
+\item{lambdaZStats}{if not \code{NULL}, a list with 9 elements (see details). Must be provided if lamznpt is not.}
 
 \item{calculation}{Must be either the string "standard" or "moment".  If the former, calculates the standard area under
 the curve.  For the latter, it will calculate the area under the moment curve}
 
-\item{minPoints}{Minimum number of points to use for the Lambdaz calculation(s), 3 by default. Single positive integer.}
+\item{minpoints}{Minimum number of points to use for the LAMZcalculation(s), 3 by default. Single positive integer.}
 
-\item{addT0}{Single logical value declaring whether T0 should be added if missing provided execution is Safe (default TRUE).}
-
-\item{Safe}{Single logical value declaring whether to perform data checks and data cleaning (default is TRUE).}
+\item{addt0}{Single logical value declaring whether T0 should be added if missing (default \code{TRUE}).}
 
 \item{inter}{Single character stating whether the interpolation method used is \code{"Linear"} (default) or \code{"Linear Log"}}
 }
@@ -33,7 +31,7 @@ the curve.  For the latter, it will calculate the area under the moment curve}
 A numeric vector with a single element holding the area under the concentration/time curve until "infinity".
 }
 \description{
-Area Under the Concentration Time Curve from Time = 0 to Time = Inf using extrapolation from Predicted Clast
+Area Under the concentration time Curve from time = 0 to time = Inf using extrapolation from Predicted Clast
 }
 \details{
 AUCInfPred calculates the area under a time/concentration (or first moment) curve from the first point up to  
@@ -42,20 +40,20 @@ curve until the last measurable concentration (see \code{\link{AUCLast}}), and t
 AUC which is the area bounded by the exponential decay curve with rate constant -lambdaz from observed Clast.  
 Analogous calculations for AUMC are used if appropriate. \cr
 There are two methods for calculating AUC and AUMC.
-Lambdaz stats can be calculated within the function. In this case, numPoints should be provided.
-numPoints must be a single integer greater than minPonts (which should be at least 2) and less than or equal to the length of \code{Time} and \code{Conc}.
-numPoints is NULL by default. Must be provided if lambdaZStats is not.
+LAMZstats can be calculated within the function. In this case, lamznpt should be provided.
+lamznpt must be a single integer greater than minPonts (which should be at least 2) and less than or equal to the length of \code{time} and \code{conc}.
+lamznpt is NULL by default. Must be provided if lambdaZStats is not.
 The lambdaz statistics may be provided directly to this function; it should have length 1 numeric elements:
 \enumerate{
      \item Lambdaz
      \item intercept
-     \item r2
-     \item adjr2
-     \item rhoXY
-     \item tPhaseHalfLife
-     \item LambdazLower
-     \item LambdazUpper
-     \item numPoints
+     \item R2
+     \item R2ADJ
+     \item CORRXY
+     \item LAMZHL
+     \item LAMZLL
+     \item LAMZUL
+     \item lamznpt
 }
 Use \code{unlist} to pass \code{lambdaZStatistics} output to this function.
 }
@@ -64,7 +62,7 @@ The following error checks / processing will be performed:
  \enumerate{
      \item all error checks for \code{AUCLast} apply
      \item If any relevant lambda z calculations are NA, NA will be returned
-     \item An exception will be generated if numPoints is not a single integer numeric between 2 and  \code{length(Conc)} (inclusive)
+     \item An exception will be generated if lamznpt is not a single integer numeric between 2 and  \code{length(conc)} (inclusive)
  }
 The algorithm for calculating the extrapolated AUC is as follows:
 \deqn{ClastExtrap = \exp(-\lambda_z * t_{upper}) * c_0} 
@@ -76,7 +74,7 @@ last time point used in that regression
 }
 \examples{
      Theoph1 <- subset(Theoph, Subject == 1)
-     AUCInfPred(Theoph1$conc, Theoph1$Time, numPoints = 4)
+     AUCInfPred(Theoph1$conc, Theoph1$time, lamznpt = 4)
 }
 \seealso{
 \code{\link{lambdaZStatistics}}, \code{\link{AUCLast}}

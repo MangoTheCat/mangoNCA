@@ -4,56 +4,78 @@
 \alias{getPartialAUC}
 \title{Partial Area Under Curve}
 \usage{
-getPartialAUC(Conc = NULL, Time = NULL, startTime = NULL,
-  endTime = NULL, numPoints = NULL, usePoints = NULL, excPoints = NULL,
-  Safe = TRUE, inter = "Linear")
+getPartialAUC(conc = NULL, time = NULL, starttime = NULL,
+  endtime = NULL, lamznpt = NULL, usepoints = NULL, excpoints = NULL,
+  inter = "Linear", maxdiffrsq = 1e-04, minr2adj = 0.8, numhalflife = 1)
 }
 \arguments{
-\item{Conc}{Vector of concentrations}
+\item{conc}{Vector of conc}
 
-\item{Time}{Vector of times, must be ordered in ascending order and should not have duplicates}
+\item{time}{Vector of time, must be ordered in ascending order and should not have duplicates}
 
-\item{startTime}{Single numeric value, first time from which area should be calculated}
+\item{starttime}{Single numeric value, first time from which area should be calculated}
 
-\item{endTime}{Single numeric value, last time to which area should be calculated}
+\item{endtime}{Single numeric value, last time to which area should be calculated}
 
-\item{numPoints}{single numeric value declaring number of points to use}
+\item{lamznpt}{If \code{NULL} (default) automatically select, else,
+single numeric number of points for calculation of terminal phase.}
 
-\item{usePoints}{If \code{NULL} (default) automatically select, else, logical vector of points to use for calculation of terminal phase. Used rows are flagged by usePoints as \code{TRUE}.}
+\item{usepoints}{If \code{NULL} (default) automatically select, else,
+logical vector of points to use for calculation of terminal phase.
+Used rows are flagged by usepoints as \code{TRUE}.}
 
-\item{excPoints}{If \code{NULL} (default) automatically select, else, logical vector of points to exclude from automatic calculation of terminal phase. Excluded rows are flagged by excPoints as \code{TRUE}.}
+\item{excpoints}{If \code{NULL} (default) automatically select, else,
+logical vector of points to exclude from automatic calculation of terminal phase.
+Excluded rows are flagged by excpoints as \code{TRUE}.}
 
-\item{Safe}{Single logical value, if FALSE don't perform additional error checks}
+\item{inter}{Single character stating whether the interpolation method used is
+\code{"Linear"} (default), \code{"Lin up Log down"} or \code{"Linear Log"}}
 
-\item{inter}{Single character stating whether the interpolation method used is \code{"Linear"} (default), \code{"Lin up Log down"} or \code{"Linear Log"}}
+\item{maxdiffrsq}{single numeric in range 0-1 The Adjusted R-squared method
+will select the number of points
+for terminal phase calculation for the set of trailing points with the
+most points that is within maxdiffrsq of the maximum adjusted R-squared
+(default 1e-4)}
+
+\item{minr2adj}{single numeric Minimum value permitted for
+adjusted R-squared for lambda-z to be calculated.
+If NA or NULL, lambda-z calculation is supressed. (default 0.5)}
+
+\item{numhalflife}{single numeric Multiplier for terminal phase half life,
+when checking that terminal phase half life is not
+larger than the range of interpolated data
+(i.e. extrapolated area is not a large portion of AUC0_Inf).
+If LAMZHL * numhalflife > LAMZUL - LAMZLL, terminal phase
+statistics will not be returned.
+To always return terminal phase statistics, set to 0.
+To never return terminal phase statistics set to Inf, NULL or NA. (default 1)}
 }
 \value{
 Data frame
 }
 \description{
-Area Under the Concentration Time Curve from T = startTime to T = endTime
+Area Under the concentration time Curve from T = starttime to T = endtime
 }
 \details{
 This is a wrapper function designed to be the interface for performing a partial AUC calculation. 
-\code{getPartialAUC} returns the area under a time-concentration curve from \code{firstTime} up until \code{endTime}. 
-The calculation is performed by subtracting AUC_0_startTime from AUC_0_endTime using \code{AUCPartial}.
-\code{endTime} need not be one of the elements of \code{Time}.
-If \code{endTime} does not coincide with an existing time element and is less than tlast, 
+\code{getPartialAUC} returns the area under a time-concentration curve from \code{firsttime} up until \code{endtime}. 
+The calculation is performed by subtracting AUC_0_starttime from AUC_0_endtime using \code{AUCPartial}.
+\code{endtime} need not be one of the elements of \code{time}.
+If \code{endtime} does not coincide with an existing time element and is less than tlast, 
 the following interpolation formula will be used to calculated a new concentration: 
     \deqn{c_{inter} = c_1 +  \left| \frac{ t^{end} - t_1}{t_2 - t_1} \right|  (c_2 - c_1)}.  
-If endTime is greater than tlast, then another concentration is extrapolated via the formula: 
-    \deqn{c_{extr} = c_0 + \exp(- \lambda_z * endTime)  }.
-\code{numPoints} is calculated by \code{\link{selectPoints}}.
+If endtime is greater than tlast, then another concentration is extrapolated via the formula: 
+    \deqn{c_{extr} = c_0 + \exp(- \lambda_z * endtime)  }.
+\code{lamznpt} is calculated by \code{\link{selectPoints}}.
 Returns a data frame with 1 row containing columns:
  \enumerate{
-     \item \code{startTime}  
-     \item \code{endTime} 
+     \item \code{starttime}  
+     \item \code{endtime} 
      \item \code{AUCPartial}
-     \item \code{numPoints} 
+     \item \code{lamznpt} 
      \item \code{Error} 
  }
 }
 \author{
 Mango Solutions
 }
-\keyword{math}

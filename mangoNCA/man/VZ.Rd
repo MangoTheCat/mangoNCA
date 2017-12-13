@@ -4,11 +4,9 @@
 \alias{VZ}
 \title{Volume Distribution at Steady-State (observed)}
 \usage{
-VZ(lambdaz, AUCInf, Dose, Safe = TRUE)
+VZ(lambdaz, AUCInf, dose)
 }
 \arguments{
-\item{Safe}{Single logical value declaring whether to perform redundant data checks (default is TRUE).}
-
 \item{MRT}{Single numeric value of time}
 
 \item{CL}{Single numeric value of clearance}
@@ -24,7 +22,7 @@ This function simply calculates VSS from MRT and CL when they have already been 
 \deqn{ VSS = MRT * CL }
 }
 \examples{
-VZ(lambdaz = 0.001, AUCInf = 1000, Dose = 10)
+VZ(lambdaz = 0.001, AUCInf = 1000, dose = 10)
 }
 \author{
 Mango Solutions

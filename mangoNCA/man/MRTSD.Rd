@@ -2,27 +2,27 @@
 % Please edit documentation in R/MRTInfSD.R
 \name{MRTSD}
 \alias{MRTSD}
-\title{Calculate Mean Residence Time}
+\title{Calculate Mean Residence time}
 \usage{
-MRTSD(AUC, AUMC, Dof = 0)
+MRTSD(AUC, AUMC, duration = 0)
 }
 \arguments{
 \item{AUC}{Single numeric value, area under the concentration time curve}
 
 \item{AUMC}{Single numeric value, area under the concentration time moment curve}
 
-\item{Dof}{Duration of infusion, single numeric value}
+\item{duration}{Duration of infusion, single numeric value}
 }
 \value{
 A single numeric vector.
 }
 \description{
-Mean Residence Time (Single Dose)
+Mean Residence time (Single dose)
 }
 \details{
 Calculates mean residence time from AUMC, AUC and duration of infusion.
 The value returned is: 
-\deqn{\frac{AUMC}{AUC} - \frac{Dof}{2}}
+\deqn{\frac{AUMC}{AUC} - \frac{duration}{2}}
 }
 \author{
 Mango Solutions

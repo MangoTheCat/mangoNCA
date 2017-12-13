@@ -2,99 +2,126 @@
 % Please edit documentation in R/ncaComplete.R
 \name{ncaComplete}
 \alias{ncaComplete}
-\title{Non compartment analysis on Time Concentration data}
+\title{Non-Compartmental Analysis on concentration-time Data}
 \usage{
-ncaComplete(Conc, Time, Dose, Dof, PeakTrough = NULL,
-  numPoints = as.numeric(NA), usePoints = NULL, excPoints = FALSE,
-  Safe = TRUE, addT0 = FALSE, inter = "Linear", ROutput)
+ncaComplete(conc, time, dose, duration, lamznpt = NA_real_,
+  usepoints = NULL, excpoints = FALSE, addt0 = FALSE, inter = "Linear",
+  ROutput = shapeROutput, maxdiffrsq = 1e-04, minr2adj = 0.8,
+  numhalflife = 1)
 }
 \arguments{
-\item{Conc}{Vector of Concentrations}
+\item{conc}{Vector of conc}
 
-\item{Time}{Vector of times, must be ordered in ascending order and should not have duplicates}
+\item{time}{Vector of time, must be ordered in ascending order and should not have duplicates}
 
-\item{Dose}{Single numeric of amount of compound delivered to system}
+\item{dose}{Single numeric value of dose}
 
-\item{Dof}{Single numeric of duration of infusion.}
+\item{duration}{Single numeric value of duration of infusion}
 
-\item{PeakTrough}{Optional vector of numeric coding of length Time (default is NULL).}
+\item{lamznpt}{If \code{NULL} (default) automatically select, else,
+single numeric number of points for calculation of terminal phase.}
 
-\item{numPoints}{If NA (default) number of points for calculation of terminal phase is calculated by \code{selectPoints}, otherwise a single integer declaring number of points to use. If numPoints is zero or less, supress terminal phase calculations}
+\item{usepoints}{If \code{NULL} (default) automatically select, else,
+logical vector of points to use for calculation of terminal phase.
+Used rows are flagged by usepoints as \code{TRUE}.}
 
-\item{usePoints}{If NULL (default) automatically select, else, logical vector of points to use (\code{TRUE}) for calculation of terminal phase.}
+\item{excpoints}{If \code{NULL} (default) automatically select, else,
+logical vector of points to exclude from automatic calculation of terminal phase.
+Excluded rows are flagged by excpoints as \code{TRUE}.}
 
-\item{excPoints}{Logical vector (\code{FALSE} by default) excludeing \code{TRUE} rows from automatic calculation of terminal phase.}
+\item{addt0}{single logical should t=0, c=0
+be added to time if missing? (default FALSE)}
 
-\item{Safe}{Single logical value declaring whether to perform redundant data checks (default is TRUE).}
+\item{inter}{Single character stating whether the interpolation method used is
+\code{"Linear"} (default), \code{"Lin up Log down"} or \code{"Linear Log"}}
 
-\item{addT0}{Single logical value declaring whether to add row at T = 0 if missing (default is FALSE).}
+\item{ROutput}{Named vector consisting of 38 NA and 1 zero
+with names which should match expected output names.}
 
-\item{inter}{Single character stating whether the interpolation method used is \code{"Linear"} (default) or \code{"Linear Log"}}
+\item{maxdiffrsq}{single numeric in range 0-1 The Adjusted R-squared method
+will select the number of points
+for terminal phase calculation for the set of trailing points with the
+most points that is within maxdiffrsq of the maximum adjusted R-squared
+(default 1e-4)}
 
-\item{ROutput}{Named vector consisting of 38 NA and 1 zero with names which should match expected output names.}
+\item{minr2adj}{single numeric Minimum value permitted for
+adjusted R-squared for lambda-z to be calculated.
+If NA or NULL, lambda-z calculation is supressed. (default 0.5)}
+
+\item{numhalflife}{single numeric Multiplier for terminal phase half life,
+when checking that terminal phase half life is not
+larger than the range of interpolated data
+(i.e. extrapolated area is not a large portion of AUC0_Inf).
+If LAMZHL * numhalflife > LAMZUL - LAMZLL, terminal phase
+statistics will not be returned.
+To always return terminal phase statistics, set to 0.
+To never return terminal phase statistics set to Inf, NULL or NA. (default 1)}
 }
 \value{
 Data frame
 }
 \description{
-Perform Non-Compartmental Analysis for Complete Concentration-Time Datasets
+Perform Non-Compartmental Analysis for Complete concentration-time Datasets
 }
 \details{
-This function is not expected to be used directly. The output structure is passed from \code{ncaAnalysis}.
-\code{ncaComplete} calculates NCA parameters for individuals returning as many parameters as are calculable.
-\code{ROutput_Peak} and \code{ROutput_Trough} will always be returned where possible.
-The final column of the return is \code{ROutput_Error}. This should be zero. 
-\code{ncaComplete} will \code{try} to call the functions to calculate the NCA parameters.
-If it is not, an error has occured. 
-The text of each error will appear in this column as a single character string with  
-individual messages separated by a newline. 
+This function is not expected to be used directly. The output structure
+is passed from \code{getNCAnalysis}.
+\code{ncaComplete} calculates NCA parameters for individuals returning
+as many parameters as are calculable.
+\code{CPEAK} and \code{CTROUGH} will always be returned where possible.
+The final column of the return is \code{ERROR}. This should be zero.
+\code{ncaComplete} will \code{try} to call the functions to calculate the
+NCA parameters.
+If it is not, an error has occured.
+The text of each error will appear in this column as a single character string
+with individual messages separated by a newline.
 Returns a data frame with 1 row containing columns:
  \enumerate{
-     \item \code{ROutput_adjr2}  
-     \item \code{ROutput_intercept} 
-     \item \code{ROutput_numPoints}  
-     \item \code{ROutput_r2}  
-     \item \code{ROutput_rhoXY}  
-     \item \code{ROutput_AUC_Percent_Extrapolated_obs}  
-     \item \code{ROutput_AUC_Percent_Extrapolated_pred}  
-     \item \code{ROutput_AUCInfObs}  
-     \item \code{ROutput_AUCInfPred}  
-     \item \code{ROutput_AUCLast}  
-     \item \code{ROutput_AUMC_Percent_Extrapolated_obs}  
-     \item \code{ROutput_AUMC_Percent_Extrapolated_pred} 
-     \item \code{ROutput_AUMCInfObs}  
-     \item \code{ROutput_AUMCInfPred}  
-     \item \code{ROutput_AUMCLast}  
-     \item \code{ROutput_CLast}  
-     \item \code{ROutput_ClObs}  
-     \item \code{ROutput_ClPred}  
-     \item \code{ROutput_Cmax}  
-     \item \code{ROutput_Cmin}  
-     \item \code{ROutput_Dof}  
-     \item \code{ROutput_Dose}  
-     \item \code{ROutput_HalfLife}  
-     \item \code{ROutput_LambdaZ}  
-     \item \code{ROutput_LambdazLower}  
-     \item \code{ROutput_LambdazUpper}  
-     \item \code{ROutput_MRTInfObs}  
-     \item \code{ROutput_MRTInfPred}  
-     \item \code{ROutput_MRTLast}  
-     \item \code{ROutput_Peak}  
-     \item \code{ROutput_TLast}  
-     \item \code{ROutput_Tmax}  
-     \item \code{ROutput_Tmin}  
-     \item \code{ROutput_Trough}  
-     \item \code{ROutput_VssObs}  
-     \item \code{ROutput_VssPred}  
-     \item \code{ROutput_VzObs} 
-     \item \code{ROutput_VzPred} 
-     \item \code{ROutput_Error} 
+     \item \code{R2ADJ}
+     \item \code{INTERCEPT}
+     \item \code{LAMZNPT}
+     \item \code{R2}
+     \item \code{CORRXY}
+     \item \code{AUCPEO}
+     \item \code{AUCPEP}
+     \item \code{AUCIFO}
+     \item \code{AUCIFP}
+     \item \code{AUCLST}
+     \item \code{AUMCPEO}
+     \item \code{AUMCPEP}
+     \item \code{AUMCIFO}
+     \item \code{AUMCIFP}
+     \item \code{AUMCLST}
+     \item \code{CLST}
+     \item \code{CLO}
+     \item \code{CLP}
+     \item \code{CMAX}
+     \item \code{CMIN}
+     \item \code{INTDOSE}
+     \item \code{DOSE}
+     \item \code{LAMZHL}
+     \item \code{LAMZ}
+     \item \code{LAMZLL}
+     \item \code{LAMZUL}
+     \item \code{MRTIFO}
+     \item \code{MRTIFP}
+     \item \code{MRTLST}
+     \item \code{CPEAK}
+     \item \code{TLST}
+     \item \code{TMAX}
+     \item \code{TMIN}
+     \item \code{CTROUGH}
+     \item \code{VSSO}
+     \item \code{VSSP}
+     \item \code{VZO}
+     \item \code{VZP}
+     \item \code{ERROR}
  }
 }
 \examples{
-load(system.file(package = "MangoNca", "data", "shapeROutput.RData"))
 Theoph1 <- subset(Theoph, Subject == 1)
-ncaComplete(Conc = Theoph1$conc, Time = Theoph1$Time, Dose = Theoph1$Dose[1], Dof = 1, ROutput = shapeROutput)
+ncaComplete(conc = Theoph1$conc, time = Theoph1$Time,
+    dose = Theoph1$Dose[1], duration = 1)
 }
 \author{
 Mango Solutions

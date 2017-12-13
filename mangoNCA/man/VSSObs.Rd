@@ -4,18 +4,19 @@
 \alias{VSSObs}
 \title{Volume Distribution at Steady-State (observed)}
 \usage{
-VSSObs(Conc, Time, Dose, Dof, numPoints = NULL, Safe = TRUE)
+VSSObs(conc, time, dose, duration, lamznpt = NULL)
 }
 \arguments{
-\item{Conc}{Vector of concentrations}
+\item{conc}{Vector of conc}
 
-\item{Time}{Vector of times, must be ordered in ascending order and should not have duplicates}
+\item{time}{Vector of time, must be ordered in ascending order and should not have duplicates}
 
-\item{Dose}{Single numeric with dose amount}
+\item{dose}{Single numeric value of dose}
 
-\item{Dof}{duration of infusion}
+\item{duration}{Single numeric value of duration of infusion}
 
-\item{numPoints}{Number of points to use for the lambda z calculation(s)}
+\item{lamznpt}{If \code{NULL} (default) automatically select, else,
+single numeric number of points for calculation of terminal phase.}
 }
 \value{
 Single numeric value
@@ -27,7 +28,7 @@ Function to Calculate Volume of Distribution at Steady State (Observed)
 Calculates volume distribution at steady-state (observed).
 This is a convenience function for when using the R package. 
 \code{\link{ncaComplete}} calls VSS directly since MRTInfObs and CLObs have already been calculated.
-\code{VSSObs} calls \code{\link{VSS}} after calling \code{\link{MRTInfObsSD}}, \code{\link{AUCinfobs}} and \code{\link{clearance}}.
+\code{VSSObs} calls \code{\link{VSS}} after calling \code{\link{MRTInfObsSD}}, \code{\link{AUCInfObs}} and \code{\link{clearance}}.
 }
 \note{
 All input checks / error handling for CLPred and MRTInfPredSD apply.  The formula used to calculate this 
@@ -35,7 +36,7 @@ quantity is \deqn{ MRTPredSD_{\inf} * CLPred }
 }
 \examples{
 Theoph1 <- subset(  Theoph, Subject == 1)
-VSSObs( Conc = Theoph1$conc, Time = Theoph1$Time, numPoints = 3, Dose = Theoph1$Dose[1], Dof = 3 )
+VSSObs(conc = Theoph1$conc, time = Theoph1$time, lamznpt = 3, dose = Theoph1$Dose[1], duration = 3 )
 }
 \author{
 Mango Solutions

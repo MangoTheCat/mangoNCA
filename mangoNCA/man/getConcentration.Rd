@@ -2,47 +2,66 @@
 % Please edit documentation in R/getConcentration.R
 \name{getConcentration}
 \alias{getConcentration}
-\title{Concentration at Time at T = firstTime and T = secondTime}
+\title{concentration at time at T = firsttime and T = secondtime}
 \usage{
-getConcentration(Conc = NULL, Time = NULL, firstTime = NA,
-  secondTime = NA, numPoints = NULL, usePoints = NULL, excPoints = NULL,
-  Safe = TRUE, inter = "Linear")
+getConcentration(conc = NULL, time = NULL, firsttime = NA,
+  secondtime = NA, lamznpt = NULL, usepoints = NULL, excpoints = NULL,
+  inter = "Linear", maxdiffrsq = 1e-04, minr2adj = 0.8, numhalflife = 1)
 }
 \arguments{
-\item{Conc}{Vector of concentrations}
+\item{conc}{A numeric vector of concentration values}
 
-\item{Time}{Vector of times, must be ordered in ascending order and should not have duplicates}
+\item{time}{A numeric vector of time values, parallel to \code{conc} and of the same length.  These should be sorted
+in ascending order.}
 
-\item{firstTime}{single numeric value, first time at which Concentration should be calculated}
+\item{firsttime}{single numeric value, first time at which concentration should be calculated}
 
-\item{secondTime}{single numeric value, second time at which Concentration should be calculated}
+\item{secondtime}{single numeric value, second time at which concentration should be calculated}
 
-\item{numPoints}{single numeric value declaring number of points to use}
+\item{lamznpt}{Number of points to use for the lambdaz calculation, counted from the end of the concentration/time vectors.}
 
-\item{usePoints}{If \code{NULL} (default) automatically select, else, logical vector of points to use for calculation of terminal phase. Used rows are flagged by usePoints as \code{TRUE}.}
+\item{usepoints}{If \code{NULL} (default) automatically select, else, 
+logical vector of points to use for calculation of terminal phase. 
+Used rows are flagged by usepoints as \code{TRUE}.}
 
-\item{excPoints}{If \code{NULL} (default) automatically select, else, logical vector of points to exclude from automatic calculation of terminal phase. Excluded rows are flagged by excPoints as \code{TRUE}.}
+\item{excpoints}{If \code{NULL} (default) automatically select, else, 
+logical vector of points to exclude from automatic calculation of terminal phase. 
+Excluded rows are flagged by excpoints as \code{TRUE}.}
 
-\item{Safe}{single logical value declaring whether error checking should be performed}
+\item{inter}{Single character stating whether the interpolation method used is \code{"Linear"} (default) or \code{"Linear Log"}}
 
-\item{inter}{Single character stating whether the interpolation method used is \code{"Linear"} (default), \code{"Lin up Log down"} or \code{"Linear Log"}}
+\item{maxdiffrsq}{single numeric in range 0-1 The Adjusted R-squared method 
+will select the number of points
+for terminal phase calculation for the set of trailing points with the 
+most points that is within maxdiffrsq of the maximum adjusted R-squared 
+(default 1e-4)}
+
+\item{minr2adj}{single numeric Minimum value permitted for adjusted 
+R-squared for lambda-z to be calculated. 
+If NA or NULL, lambda-z calculation is supressed. (default 0.8)}
+
+\item{numhalflife}{single numeric Multiplier for terminal phase half life, 
+when checking that terminal phase half life is not an excessively large 
+portion of the AUC0_Inf. 
+To always return lambda-z, set to 0.
+To never return lambda-z set to Inf, NULL or NA. (default 1)}
 }
 \value{
 Data frame
 }
 \description{
-Concentration at Time at T = firstTime and T = secondTime
+concentration at time at T = firsttime and T = secondtime
 }
 \details{
-This function calculates Concentration at Time
+This function calculates concentration at time
 Returns a data frame with 1 row containing columns:
  \enumerate{
-     \item \code{firstTime}  
-     \item \code{secondTime} 
-     \item \code{firstConc}
-     \item \code{secondConc}
-     \item \code{numPoints} 
-     \item \code{Error} 
+     \item \code{firsttime}  
+     \item \code{secondtime} 
+     \item \code{firstconc}
+     \item \code{secondconc}
+     \item \code{LAMZNPT} 
+     \item \code{ERROR} 
  }
 }
 \author{

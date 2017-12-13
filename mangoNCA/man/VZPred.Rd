@@ -2,38 +2,35 @@
 % Please edit documentation in R/VZ.R
 \name{VZPred}
 \alias{VZPred}
-\title{Terminal Volume Distribution, Single Dose (predicted)}
+\title{Terminal Volume Distribution, Single dose (predicted)
+
+Terminal Volume Distribution, Single dose (predicted)
+
+Calculates volume distribution for single dose from terminal phase (predicted).}
 \usage{
-VZPred(Conc, Time, Dose, numPoints = NULL)
+VZPred(conc, time, dose, lamznpt = NULL)
 }
 \arguments{
-\item{Conc}{Vector of concentrations}
+\item{conc}{Vector of conc}
 
-\item{Time}{Vector of times, must be ordered in ascending order and should not have duplicates}
+\item{time}{Vector of time, must be ordered in ascending order and should not have duplicates}
 
-\item{Dose}{Single numeric with dose amount}
+\item{dose}{Single numeric value of dose}
 
-\item{numPoints}{Number of points to use for the lambda z calculation(s)}
-
-\item{Dof}{duration of infusion (default NULL)}
+\item{lamznpt}{If \code{NULL} (default) automatically select, else,
+single numeric number of points for calculation of terminal phase.}
 }
 \value{
 Single numeric value
 }
-\description{
-Terminal Volume Distribution, Single Dose (predicted)
-}
-\details{
-Calculates volume distribution for single dose from terminal phase (predicted).
-}
 \note{
 All input checks / error handling for LambdaZStatistics and AUCInfPred apply.  
 The formula used to calculate this quantity is 
-\deqn{ Dose / {\lambda}_z * AUC({\inf})_Pred }
+\deqn{ dose / {\lambda}_z * AUC({\inf})_Pred }
 }
 \examples{
 Theoph1 <- subset(Theoph, Subject == 1)
-VZPred(Conc = Theoph1$conc, Time = Theoph1$Time, Dose = Theoph1$Dose[1])
+VZPred(conc = Theoph1$conc, time = Theoph1$time, dose = Theoph1$Dose[1])
 }
 \author{
 Mango Solutions

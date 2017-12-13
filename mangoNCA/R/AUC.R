@@ -1,7 +1,4 @@
-# SVN revision: $Rev:  $
-# Date of last change: $LastChangedDate: 02/07/2013 $
-# Last changed by: $LastChangedBy: ccampbell $
-# 
+
 # Original author: fgochez
 # Copyright Mango Solutions, Chippenham, UK
 ###############################################################################
@@ -16,43 +13,42 @@
 #'     AUC_t1_t2 = (C1 + C2) * (t2 - t1) / 2
 #' 
 #' @title Calculate AUC Using Linear Trapezoidal Rules
-#' @param Conc numeric vector of concentrations
-#' @param Time numeric vector of time points (same length as and parallel to Conc).  
+#' @param conc numeric vector of concentrations
+#' @param time numeric vector of time points (same length as and parallel to conc).  
 #' These elements should be sorted in ascending order, otherwise an exception will be generated.
 #' @note It is assumed that these times and concentrations come from a single curve.
 #' The following error checks / processing will be performed:
 #'  \enumerate{
-#'      \item If \code{Conc} or \code{Time} are of length 0, a single NA is returned
-#'      \item \code{Conc} and \code{Time} should be equal length numeric vectors, 
+#'      \item If \code{conc} or \code{time} are of length 0, a single NA is returned
+#'      \item \code{conc} and \code{time} should be equal length numeric vectors, 
 #'      otherwise an exception will be generated
-#'      \item if \code{Time[i]} or \code{Conc[i]} is \code{NA} and \code{auc <-  AUCLin(Conc,Time)}, 
+#'      \item if \code{time[i]} or \code{conc[i]} is \code{NA} and \code{auc <-  AUCLin(conc,time)}, 
 #'      then \code{auc[i]} and \code{auc[i - 1]} will be \code{NA}.
 #'  }
 #' @return numeric vector of trapezium AUC values.
 #' @keywords math 
 #' @examples
 #' Theoph2 <- subset(Theoph, Subject == 2)
-#' x <- MangoNca:::AUCLin(Theoph2$conc, Theoph2$Time) 
+#' x <- mangoNCA:::AUCLin(Theoph2$conc, Theoph2$time) 
 #' sum(x) # 91.5268
 
 
-AUCLin <- function(Conc, Time)
-{
+AUCLin <- function(conc, time) {
     # Note that AUC returns a vector of trapezia
-    # NA Time or Conc values will prevent corresponding trapezia from being calculated
+    # NA time or conc values will prevent corresponding trapezia from being calculated
     # This is not a desirable estimate of AUC
     # Vectors containing NAs should not be passed to AUCLin 
 
     # check data
     
-    checkNumericSameLength(Time, Conc, "Time", "Concentration")
-    checkOrderedVector(Time, "Time", "AUCLin")
+    checkNumericSameLength(time, conc, "time", "concentration")
+    checkOrderedVector(time, "time", "AUCLin")
     
-    # concTime: data.frame holding columns of times and concentrations
+    # conctime: data.frame holding columns of times and concentrations
     
-    concTime <- data.frame(Time, Conc)
+    conctime <- data.frame(time, conc)
     
-    nn <- nrow(concTime) - 1
+    nn <- nrow(conctime) - 1
     
     # there must be at least 2 elements to calculate AUC  
     # if there are fewer, return a single NA
@@ -63,8 +59,8 @@ AUCLin <- function(Conc, Time)
     
     if (nn > 0) {
         
-        auc <- (concTime[seq_len(nn), "Conc"] + concTime[seq_len(nn) + 1, "Conc"])  * 
-            diff(concTime[, "Time"]) / 2
+        auc <- (conctime[seq_len(nn), "conc"] + conctime[seq_len(nn) + 1, "conc"])  * 
+            diff(conctime[, "time"]) / 2
     }
     
 
@@ -105,35 +101,36 @@ trapezium <- function(x, y)
 #'     AUC_t1_t2 = (t2 - t1) * (C2 - C1) / log(C2 / C1)
 #' 
 #' @title Calculate AUC Using Logarithmic Trapezoidal Rule
-#' @param Conc numeric vector of concentrations
-#' @param Time numeric vector of time points (same length as and parallel to Conc).  
+#' @param conc numeric vector of concentrations
+#' @param time numeric vector of time points (same length as and parallel to conc).  
 #' These elements should be sorted in ascending order, otherwise an exception will be generated.
 #' @note It is assumed that these times and concentrations come from a single curve. 
 #' The following error checks / processing will be performed:
 #'  \enumerate{
-#'      \item If \code{Conc} or \code{Time} are of length 1 or 0, a single NA is returned
-#'      \item \code{Conc} and \code{Time} should be equal length numeric vectors, 
+#'      \item If \code{conc} or \code{time} are of length 1 or 0, a single NA is returned
+#'      \item \code{conc} and \code{time} should be equal length numeric vectors, 
 #'      otherwise an exception will be generated
-#'      \item if \code{Time[i]} or \code{Conc[i]} is \code{NA} and \code{auc =  AUCLin(Conc,Time)}, 
+#'      \item if \code{time[i]} or \code{conc[i]} is \code{NA} and \code{auc =  AUCLin(conc,time)}, 
 #'      then \code{auc[i]} and \code{auc[i - 1]} will be \code{NA}.
-#'      \item If \code{Conc[i]} equals \code{Conc[i + 1]}, linear interpolation will be used
+#'      \item If \code{conc[i]} equals \code{conc[i + 1]}, linear interpolation will be used
 #'  }
 #' @return numeric vector of trapezium AUC values.  
 #' @keywords math 
 #' @examples
 #' Theoph2 <- subset(Theoph, Subject == 2)
-#' x <- MangoNca:::AUCLog( Theoph2$conc, Theoph2$Time ) 
+#' x <- mangoNCA:::AUCLog( Theoph2$conc, Theoph2$time ) 
 #' sum(x) # 
 
-AUCLog <- function (Conc, Time) {
+AUCLog <- function (conc, time) {
     
-    checkNumericSameLength(Time, Conc, "Time", "Concentration", functionName = "AUCLog")
+    checkNumericSameLength(time, conc, "time", "concentration", 
+        functionName = "AUCLog")
     
-    checkOrderedVector(Time, "Time", functionName = "AUCLog")
+    checkOrderedVector(time, "time", functionName = "AUCLog")
 
-    concTime <- data.frame(Time, Conc)
+    conctime <- data.frame(time, conc)
     
-    nn <- nrow(concTime) - 1
+    nn <- nrow(conctime) - 1
     
     auc <- as.numeric(NA)
     
@@ -141,25 +138,25 @@ AUCLog <- function (Conc, Time) {
     
     if (nn > 0) {
         
-        deltaConc <- concTime[seq_len(nn), "Conc"] - concTime[seq_len(nn) + 1, "Conc"]
+        deltaconc <- conctime[seq_len(nn), "conc"] - conctime[seq_len(nn) + 1, "conc"]
         
-        deltalogConc <- log(concTime[seq_len(nn), "Conc"]) - log(concTime[seq_len(nn) + 1, "Conc"])
+        deltalogconc <- log(conctime[seq_len(nn), "conc"]) - log(conctime[seq_len(nn) + 1, "conc"])
         
-        auc <- diff(concTime[, "Time"]) * deltaConc / deltalogConc
+        auc <- diff(conctime[, "time"]) * deltaconc / deltalogconc
         
-        zeros <- deltaConc == 0
+        zeros <- deltaconc == 0
         
         # handle missing values in data
         
-        zeros[is.na(concTime[seq_len(nn), "Conc"])] <- FALSE
+        zeros[is.na(conctime[seq_len(nn), "conc"])] <- FALSE
         
-        zeros[is.na(concTime[seq_len(nn) + 1, "Conc"])] <- FALSE
+        zeros[is.na(conctime[seq_len(nn) + 1, "conc"])] <- FALSE
         
         # use linear interpolation where C1 == C2 (i.e. squares)
         
         if (any(zeros)) {
             
-            squares <- diff(concTime[, "Time"]) * concTime[seq_len(nn), "Conc"]
+            squares <- diff(conctime[, "time"]) * conctime[seq_len(nn), "conc"]
             
             auc[zeros] <- squares[zeros]
         }

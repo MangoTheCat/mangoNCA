@@ -1,118 +1,105 @@
-# SVN revision: $Rev:  $
-# Date of last change: $LastChangedDate: 04/04/2012 $
-# Last changed by: $LastChangedBy: ccampbell $
 # 
 # Original author: ccampbell
 # Copyright Mango Solutions, Chippenham, UK
 ###############################################################################
 
-
-#' Terminal Volume Distribution, Single Dose (predicted)
+#' @title Terminal Volume Distribution, Single dose (predicted)
+#' 
+#' Terminal Volume Distribution, Single dose (predicted)
 #'
 #' Calculates volume distribution for single dose from terminal phase (predicted).
 #'
-#' @param Conc Vector of concentrations
-#' @param Time Vector of times, must be ordered in ascending order and should not have duplicates
-#' @param numPoints Number of points to use for the lambda z calculation(s)
-#' @param Dose Single numeric with dose amount
-#' @param Dof duration of infusion (default NULL)
-#' @title Terminal Volume Distribution, Single Dose (predicted)
+#' @inheritParams getNCAnalysis
 #' @note All input checks / error handling for LambdaZStatistics and AUCInfPred apply.  
 #' The formula used to calculate this quantity is 
-#' \deqn{ Dose / {\lambda}_z * AUC({\inf})_Pred }  
+#' \deqn{ dose / {\lambda}_z * AUC({\inf})_Pred }  
 #' @return Single numeric value 
 #' @author Mango Solutions
 #' @keywords math
 #' @examples
 #' Theoph1 <- subset(Theoph, Subject == 1)
-#' VZPred(Conc = Theoph1$conc, Time = Theoph1$Time, Dose = Theoph1$Dose[1])
+#' VZPred(conc = Theoph1$conc, time = Theoph1$time, dose = Theoph1$Dose[1])
 #' @export
 
-VZPred <- function(Conc, Time, Dose, numPoints = NULL)
-{
-    # check Conc, Time, numPoints and Dose, and calculate numPoints if missing
+VZPred <- function(conc, time, dose, lamznpt = NULL) {
+    # check conc, time, lamznpt and dose, and calculate lamznpt if missing
     
-    checkOrderedVector(Time, description = "Time", functionName = "VZPred")
-    checkNumericSameLength(Time, Conc, "Time", "Concentration", functionName = "VZPred")
-    checkSingleNumeric(Dose, "Dose", functionName = "VZPred")
+    checkOrderedVector(time, description = "time", functionName = "VZPred")
+    checkNumericSameLength(time, conc, "time", "concentration", functionName = "VZPred")
+    checkSingleNumeric(dose, "dose", functionName = "VZPred")
     
-    if(is.na(Dose) || Dose <= 0 )
+    if(is.na(dose) || dose <= 0 )
     {
         return(as.numeric(NA))
         
     }
     
-    if(is.null(numPoints)) 
+    if(is.null(lamznpt)) 
     { 
-        numPoints <- selectPoints(Conc = Conc, Time = Time)
+        lamznpt <- selectPoints(conc = conc, time = time)
         
     } else
     {
-        checkSingleNumeric(numPoints, "Number of Points lambdaz", functionName = "VZPred")
+        checkSingleNumeric(lamznpt, "Number of Points lambdaz", functionName = "VZPred")
         
     }
     
-    Lambda_Z_Stats <- lambdaZStatistics(Conc = Conc, Time = Time, numPoints = numPoints)
+    Lambda_Z_Stats <- lambdaZStatistics(conc = conc, time = time, lamznpt = lamznpt)
     
-    AUCinfpred <- AUCInfPred(Conc = Conc, Time = Time, numPoints = numPoints, calculation = "standard")
+    AUCinfpred <- AUCInfPred(conc = conc, time = time, lamznpt = lamznpt, calculation = "standard")
 
-    VZ_F <- VZ(lambdaz = Lambda_Z_Stats$Lambdaz, AUCInf = AUCinfpred, Dose = Dose) # volume of distribution HL
+    VZ_F <- VZ(lambdaz = Lambda_Z_Stats$Lambdaz, AUCInf = AUCinfpred, dose = dose) # volume of distribution HL
 
     return(VZ_F)
 }
 
 
 
-#' Terminal Volume Distribution, Single Dose (observed)
+#' Terminal Volume Distribution, Single dose (observed)
 #'
 #' Calculates volume distribution for single dose from terminal phase (observed).
 #'
-#' @param Conc Vector of concentrations
-#' @param Time Vector of times, must be ordered in ascending order and should not have duplicates
-#' @param numPoints Number of points to use for the lambda z calculation(s)
-#' @param Dose Single numeric with dose amount
-#' @param Dof duration of infusion (default NULL)
-#' @title Terminal Volume Distribution, Single Dose (observed)
+#' @inheritParams getNCAnalysis
+#' @title Terminal Volume Distribution, Single dose (observed)
 #' @note All input checks / error handling for LambdaZStatistics and AUCInfPred apply.  
 #' The formula used to calculate this quantity is 
-#' \deqn{ Dose / {\lambda}_z * AUC({\inf})_Obs }  
+#' \deqn{ dose / {\lambda}_z * AUC({\inf})_Obs }  
 #' @return Single numeric value
 #' @author Mango Solutions
 #' @keywords math
 #' @examples
 #' Theoph1 <- subset(Theoph, Subject == 1)
-#' VZObs(Conc = Theoph1$conc, Time = Theoph1$Time, Dose = Theoph1$Dose[1])
+#' VZObs(conc = Theoph1$conc, time = Theoph1$time, dose = Theoph1$Dose[1])
 #' @export
 
-VZObs  <- function(Conc, Time, Dose, numPoints = NULL)
-{
-    # check Conc, Time, numPoints and Dose, and calculate numPoints if missing
+VZObs  <- function(conc, time, dose, lamznpt = NULL) {
+    # check conc, time, lamznpt and dose, and calculate lamznpt if missing
     
-    checkOrderedVector(Time, description = "Time", functionName = "VZObs")
-    checkNumericSameLength(Time, Conc, "Time", "Concentration", functionName = "VZObs")
-    checkSingleNumeric(Dose, "Dose", functionName = "VZObs")
+    checkOrderedVector(time, description = "time", functionName = "VZObs")
+    checkNumericSameLength(time, conc, "time", "concentration", functionName = "VZObs")
+    checkSingleNumeric(dose, "dose", functionName = "VZObs")
     
-    if(is.na(Dose) || Dose <= 0 )
+    if(is.na(dose) || dose <= 0 )
     {
         return(as.numeric(NA))
         
     }
     
-    if(is.null(numPoints)) 
+    if(is.null(lamznpt)) 
     { 
-        numPoints <- selectPoints(Conc = Conc, Time = Time)
+        lamznpt <- selectPoints(conc = conc, time = time)
         
     } else
     {
-        checkSingleNumeric(numPoints, "Number of Points lambdaz", functionName = "VZObs")
+        checkSingleNumeric(lamznpt, "Number of Points lambdaz", functionName = "VZObs")
         
     }
     
-    Lambda_Z_Stats <- lambdaZStatistics(Conc = Conc, Time = Time, numPoints = numPoints)
+    Lambda_Z_Stats <- lambdaZStatistics(conc = conc, time = time, lamznpt = lamznpt)
     
-    AUCinfobs  <-  AUCInfObs(Conc = Conc, Time = Time, numPoints = numPoints, calculation = "standard")
+    AUCinfobs  <-  AUCInfObs(conc = conc, time = time, lamznpt = lamznpt, calculation = "standard")
     
-    VZ_F <- VZ(lambdaz = Lambda_Z_Stats$Lambdaz, AUCInf = AUCinfobs, Dose = Dose) # volume of distribution HL
+    VZ_F <- VZ(lambdaz = Lambda_Z_Stats$Lambdaz, AUCInf = AUCinfobs, dose = dose) # volume of distribution HL
 
     return(VZ_F)
 }
@@ -127,29 +114,21 @@ VZObs  <- function(Conc, Time, Dose, numPoints = NULL)
 #'
 #' @param MRT Single numeric value of time
 #' @param CL Single numeric value of clearance
-#' @param Safe Single logical value declaring whether to perform redundant data checks (default is TRUE).
 #' @title Volume Distribution at Steady-State (observed)
 #' @return Single numeric value  
 #' @export
 #' @author Mango Solutions
 #' @keywords math
 #' @examples
-#' VZ(lambdaz = 0.001, AUCInf = 1000, Dose = 10)
+#' VZ(lambdaz = 0.001, AUCInf = 1000, dose = 10)
 
-VZ <- function(lambdaz, AUCInf, Dose, Safe = TRUE)
-{
-
-    checkSingleLogical(Safe, description = "Safe", functionName = "VZ")
-    
-    if( Safe ) {
+VZ <- function(lambdaz, AUCInf, dose){
     
         checkSingleNumeric(lambdaz, description = "lambdaz", functionName = "VZ")
         checkSingleNumeric(AUCInf, description = "AUCInf", functionName = "VZ")
-        checkSingleNumeric(Dose, description = "Dose", functionName = "VZ")
-    
-    }
+        checkSingleNumeric(dose, description = "dose", functionName = "VZ")
 
-    VZ <- Dose / (lambdaz * AUCInf) # volume of distribution HL
+    VZ <- dose / (lambdaz * AUCInf) # volume of distribution HL
 
     return(VZ)
 }

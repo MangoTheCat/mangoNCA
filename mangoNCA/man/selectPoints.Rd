@@ -2,52 +2,80 @@
 % Please edit documentation in R/selectPoints.R
 \name{selectPoints}
 \alias{selectPoints}
-\title{Number of Points for Calculating Terminal Rate Constant}
+\title{Choose Number of Trailing Points to use for Terminal Rate Constant (lambda-z) Calculation.
+
+Calculates number of points to use for Terminal Rate Constant (lambda-z).
+Calculation is based on Adjusted R-squared method.
+\code{selectPoints} calls \code{\link{lambdaZStatistics}}
+to perform regressions using the last three rows,
+then the last four rows, last five, etc.
+Cmax and prior rows are not used.
+To manually select specific records, use \code{\link{usedPoints}} instead,
+by providing usepoints to \code{\link{getNCAnalysis}}.
+Exclusion of rows prior to the end of infusion is not currently implemented.
+For each regression, an adjusted R-squared is computed.
+The regression with the largest adjusted R-squared is
+selected to estimate lambda-z, with these caveats:
+ \enumerate{
+     \item Number of rows with the greatest number of rows AND
+           within maxdiffrsq (0.0001) of the largest adjusted R2 value is selected.
+     \item Rows where conc <= 0 are not used in the calculation
+     \item Trailing rows where conc <= 0 are removed by \code{stripTrailingZeros}
+           and not counted in number returned
+     \item Cmax is not included in lambda-z calculation (User Requirements PEX-010)
+     \item lambda-z must be greater than minlambdaz (0)
+     \item lambda-z must be calculated using at least minpoints (3) data rows
+     \item R2ADJ must be at least minr2adj (0.5)
+     \item LAMZHL * numhalflife (1) must be less than lambda-z interval
+           (LAMZUL - LAMZLL)
+ }
+Zero or missing values will be removed with a warning.}
 \usage{
-selectPoints(Conc, Time, minPoints = 3, method = "ars", excPoints = FALSE,
-  Safe = TRUE)
+selectPoints(conc, time, minpoints = 3, method = "ars",
+  maxdiffrsq = 1e-04, minlambdaz = 0, minr2adj = 0.5, numhalflife = 1,
+  excpoints = FALSE)
 }
 \arguments{
-\item{Conc}{Vector of concentrations.}
+\item{conc}{Vector of conc}
 
-\item{Time}{Vector of times, must be ordered in ascending order and should not have duplicates.}
+\item{time}{Vector of time, must be ordered in ascending order and should not have duplicates}
 
-\item{minPoints}{Minimum number of points to use for the Lambdaz calculation(s), 3 by default. Single positive integer.}
+\item{minpoints}{Single positive integer. Minimum number of points to use for
+lambda-z calculation(s) (default 3)}
 
 \item{method}{Method of selecting points (only Adjusted R-Squared Method implemented).}
 
-\item{excPoints}{Logical vector (\code{FALSE} by default) excludeing \code{TRUE} rows from automatic calculation of terminal phase.}
+\item{maxdiffrsq}{single numeric in range 0-1 The Adjusted R-squared method
+will select the number of points
+for terminal phase calculation for the set of trailing points with the
+most points that is within maxdiffrsq of the maximum adjusted R-squared
+(default 1e-4)}
 
-\item{Safe}{Single logical value declaring whether to perform redundant data checks (default is TRUE).}
+\item{minlambdaz}{single numeric Minimum value permitted for lambda-z to be calculated.
+If NA or NULL, lambda-z calculation is supressed. (default 0)}
+
+\item{minr2adj}{single numeric Minimum value permitted for
+adjusted R-squared for lambda-z to be calculated.
+If NA or NULL, lambda-z calculation is supressed. (default 0.5)}
+
+\item{numhalflife}{single numeric Multiplier for terminal phase half life,
+when checking that terminal phase half life is not
+larger than the range of interpolated data
+(i.e. extrapolated area is not a large portion of AUC0_Inf).
+If LAMZHL * numhalflife > LAMZUL - LAMZLL, terminal phase
+statistics will not be returned.
+To always return terminal phase statistics, set to 0.
+To never return terminal phase statistics set to Inf, NULL or NA. (default 1)}
+
+\item{excpoints}{Logical vector (\code{FALSE} by default)
+excluding \code{TRUE} rows from automatic calculation of terminal phase.}
 }
 \value{
-List consisting of numPoints, a single numeric value, and result, a length 9 numeric vector.
-}
-\description{
-Choose Number of Trailing Points to use for Terminal Rate Constant (Lambdaz) Calculation.
-}
-\details{
-Calculates number of points to use for Terminal Rate Constant (Lambdaz) calculation based on Adjusted R-squared method.
-selectPoints calls \code{\link{lambdaZStatistics}} to perform regressions using the last three rows, 
-then the last four rows, last five, etc. Rows prior to Cmax are not used.
-Exclusion of rows prior to the end of infusion is not currently implemented.
-For each regression, an adjusted R2 is computed. The regression with the largest adjusted R2 is 
-selected to estimate lambdaz, with these caveats:
- \enumerate{
-     \item Number of rows with the greatest number of rows AND within MAXDIFFRSQ (0.0001) of the largest adjusted R2 value is selected.
-     \item Rows where Conc <= 0 are not used in the calculation
-     \item Trailing rows where Conc <= 0 are removed by \code{stripTrailingZeros} and not counted in number returned
-     \item Cmax is not included in Lambdaz calculation (User Requirements PEX-010)
-     \item lambdaz must be greater than MINLAMBDAZ (0)
-     \item lambdaz must be calculated using at least minPoints (3) data rows
-     \item adjr2 must be at least MINADJR2 (0.8)
-     \item tPhaseHalfLife must be less than lambdaz interval (LambdazUpper - LambdazLower)
- }
-Zero or missing values will be removed with a warning.
+List consisting of lamznpt, a single numeric value, and result, a length 9 numeric vector.
 }
 \examples{
-     Theoph1 <- subset(Theoph, Subject == 1)
-     selectPoints(Conc = Theoph1$conc, Time = Theoph1$Time)
+Theoph1 <- subset(Theoph, Subject == 1)
+selectPoints(conc = Theoph1$conc, time = Theoph1$Time)
 }
 \author{
 Mango Solutions

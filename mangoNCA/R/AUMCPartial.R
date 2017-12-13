@@ -1,44 +1,51 @@
-# SVN revision: $Rev:  $
-# Date of last change: $LastChangedDate: 03/04/2012 $
-# Last changed by: $LastChangedBy: ccampbell $
+# Date of last change: 14/06/2016
+# Last changed by: ccampbell
 # 
 # Original author: fgochez
 # Copyright Mango Solutions, Chippenham, UK
 ###############################################################################
 
 
-#' Area Under the Concentration Time Moment Curve from T = 0 to T = endTime
+#' Area Under the concentration time Moment Curve from T = 0 to T = endtime
 #'
-#' Calculates the area under a concentration-time moment curve from the first time up until the \code{endTime}.  \code{endTime}
-#' need not be one of the elements of \code{Time}, but it should like between the minimum and maximum times 
-#' Note, all error checks that apply to \code{\link{AUC}} apply here.  If \code{endTime} is less than
+#' Calculates the area under a concentration-time moment curve from the first time up until the \code{endtime}.  \code{endtime}
+#' need not be one of the elements of \code{time}, but it should like between the minimum and maximum times 
+#' Note, all error checks that apply to \code{\link{AUCLin}} apply here.  If \code{endtime} is less than
 #' \code{tmin} \code{NA} is returned.  There should be no missing times.
-#' If the endTime does not coincide with an existing time element, the following interpolation formula will be
+#' If the endtime does not coincide with an existing time element, the following interpolation formula will be
 #' used to calculated a new concentration (if time is less than tlast): 
-#' \deqn{c_{inter} = c_1 +  \left| \frac{ t^{end} - t_1}{t_2 - t_1} \right|  (c_2 - c_1)}.  If endTime is greater than
-#' tlast, then another concentration is extrapolated via the formula \deqn{c_{extr} = c_0 + \exp(- \lambda_z * endTime)  }
+#' \deqn{c_{inter} = c_1 +  \left| \frac{ t^{end} - t_1}{t_2 - t_1} \right|  (c_2 - c_1)}.  If endtime is greater than
+#' tlast, then another concentration is extrapolated via the formula \deqn{c_{extr} = c_0 + \exp(- \lambda_z * endtime)  }
 #' 
-#' @param Conc Vector of concentrations
-#' @param Time Vector of times, must be ordered in ascending order and should not have duplicates
-#' @param endTime : last time at which area should be calculated.  Must be greater than the smallest element of Time, else NA is returned.
-#' @param numPoints : Number of points to use for lambda-z calculation.  This will only be used if endTime > tlast to 
-#' extrapolate a new concentration point
+#' @inheritParams AUCPartial
 #' @title Partial Area Under Moment Curve
 #' @return Single numeric 
 #' @author Mango Solutions
-#' @keywords math
+# TODO check if needed \code{\link{MRTInfPredSS}}
 
-
-AUMCPartial <- function(Conc, Time, endTime, numPoints, addT0 = TRUE)
-{
+AUMCPartial <- function(conc, time, endtime, lamznpt = NULL, lambdaZStats = NULL, 
+    usepoints = NULL, excpoints = FALSE, minpoints = 3, addt0 = FALSE, inter = "Linear", 
+    useObs = FALSE, maxdiffrsq = 1e-4, minr2adj = 0.8, numhalflife = 1) {
     
-    checkOrderedVector(Time, description = "Time", functionName =  "AUMCPartial")    
-    checkSingleNumeric(endTime, description = "endTime", functionName =  "AUMCPartial")
-    checkSingleNumeric(numPoints, description = "numPoints", functionName =  "AUMCPartial")
+    checkOrderedVector(time, description = "time", functionName =  "AUMCPartial")
+    
+    checkSingleNumeric(endtime, description = "endtime", functionName =  "AUMCPartial")
+    
+    if (is.null(lambdaZStats)) {
+        checkSingleNumeric(lamznpt, description = "lamznpt", functionName =  "AUMCPartial")
+        
+        if (!(lamznpt >= minpoints && lamznpt <= length(time) && 
+            floor(lamznpt) ==  lamznpt) ) {
+            
+            warning(paste("Invalid value of lamznpt:", lamznpt, "in AUMCPartial", collapse = " "))
+            
+            return(aucp)
+        }
+    }
     
     # Add T = 0 if it is missing and remove missing values
     
-    cleanData <- try(cleanConcTime(Conc = Conc, Time = Time, addT0 = addT0), silent = TRUE)
+    cleanData <- try(cleanconctime(conc = conc, time = time, addt0 = addt0), silent = TRUE)
     
     if( is(cleanData, "try-error") ) {
     
@@ -46,17 +53,17 @@ AUMCPartial <- function(Conc, Time, endTime, numPoints, addT0 = TRUE)
         
     }
 
-    Conc <- cleanData$Conc
-    Time <- cleanData$Time
+    conc <- cleanData$conc
+    time <- cleanData$time
         
-    aucp <- as.numeric(NA)
+    aucp <- NA_real_
     
     
     ###############################################################################
     
-    # check endTime occurs during Time
+    # check endtime occurs during time
     
-    if( endTime < min(Time) ){
+    if( endtime < min(time) ){
     
         return(aucp)
         
@@ -65,14 +72,14 @@ AUMCPartial <- function(Conc, Time, endTime, numPoints, addT0 = TRUE)
     
     ###############################################################################
     
-    # if endTime is actually an element of the Time vector, we can fall back on standard AUC functions
+    # if endtime is actually an element of the time vector, we can fall back on standard AUC functions
     
-    if(endTime %in% Time)
-    {
-        # endTimeIndex : integer with index of endTime inside Time
-        endTimeIndex <- match(endTime, Time )
-
-        aucp <- sum(AUCLin( Time = head(Time, n = endTimeIndex), Conc = head(Conc, n = endTimeIndex) * head(Time, n = endTimeIndex) ))
+    if (endtime %in% time) {
+        # endtimeIndex : integer with index of endtime inside time
+        endtimeIndex <- match(endtime, time )
+        
+        aucp <- sum(AUCLin( time = head(time, n = endtimeIndex), 
+            conc = head(conc, n = endtimeIndex) * head(time, n = endtimeIndex) ))
         
         return(aucp)
     }
@@ -80,24 +87,64 @@ AUMCPartial <- function(Conc, Time, endTime, numPoints, addT0 = TRUE)
     
     ###############################################################################
     
-    # if endTime > tlast, we need to extrapolate a new concentration element.  
+    # if endtime > tlast, we need to extrapolate a new concentration element.  
   
-    cLastTLast <- ClastTlast( Conc = Conc, Time = Time )
+    cLastTLast <- ClastTlast( conc = conc, time = time )
     
-    if(endTime > cLastTLast$tlast)
-    {
+    if (endtime > cLastTLast$tlast) {
         
-        auclast <- AUCLast(Conc = Conc * Time, Time = Time)
+        if (!is.null(lambdaZStats)) {
+            
+            if (!is.null(lamznpt)) { 
+                warning("both lamznpt and lambdaZStats provided to predictConc, ignoring lamznpt") 
+            }
+            
+            if (is(lambdaZStats, "list")) {
+                warning("lambdaZStats has been unlisted")
+                
+                lambdaZStats <- unlist(lambdaZStats)
+            }
+            
+            checkLambdaZStats(lambdaZStats = lambdaZStats)
+            
+            aucterm <- try(getTerminalAUC(conc = conc, time = time, 
+                    endtime = endtime, lambdaZStats = lambdaZStats), silent = TRUE)
+            
+            if (is(aucterm, "try-error")) {
+                
+                stop(paste(
+                        "Error in AUCPartial from call to getTerminalAUC with lambdaZStats, message was: ", 
+                        aucterm, sep = "", collapse = ""))
+            }
+        } else {
+            
+            # calculate the terminal AUC using integral of exponential function (aucterm)
+            excpoints <- cleanData$excpoints
+            
+            if (!is.null(usepoints))  { usepoints <- cleanData$usepoints }
+            
+            lambdaZStats <- try(lambdaZStatistics(conc = conc, time = time, 
+                    lamznpt = lamznpt), 
+                silent = TRUE)
+            
+            if(is(lambdaZStats, "try-error")) {
+                
+                stop(paste(
+                        "Error in AUMCPartial from call to lambdaZStatistics performing complete calculation, message was: ", 
+                        lambdaZStats, sep = "", collapse = ""))
+            }
+        }
+        
+        
+        auclast <- AUCLast(conc = conc * time, time = time)
         
         # calculate the terminal AUMC using integral of exponential function (aucterm)
-
-        lambdaZStats <- lambdaZStatistics(Conc = Conc, Time = Time, numPoints = numPoints)
 
         intercept <- lambdaZStats$intercept
         lambdaz <- lambdaZStats$Lambdaz
 
         auc0last <- -intercept / (lambdaz * exp(lambdaz * cLastTLast$tlast))
-        auc0end <- -intercept / (lambdaz * exp(lambdaz * endTime))
+        auc0end <- -intercept / (lambdaz * exp(lambdaz * endtime))
     
         aucterm <- auc0end - auc0last
         
@@ -110,33 +157,33 @@ AUMCPartial <- function(Conc, Time, endTime, numPoints, addT0 = TRUE)
     
     ###############################################################################
     
-    # endTime occurs between T0 and TLast
+    # endtime occurs between T0 and TLast
     
-    # find the last element which endTime exceeds
-    # t1Index the index of the largest time less than endTime
+    # find the last element which endtime exceeds
+    # t1Index the index of the largest time less than endtime
     # t2Index is next next time after t1Index
     
-    t1Index <- tail( which(Time < endTime), n = 1 )    
+    t1Index <- tail( which(time < endtime), n = 1 )    
     t2Index <- t1Index + 1
     
-    # t1, t2 = left time, right time (of interval containing endTime)
-    # c1, c2 = left concentration, right concentration (of interval containing endTime)
+    # t1, t2 = left time, right time (of interval containing endtime)
+    # c1, c2 = left concentration, right concentration (of interval containing endtime)
     
-    t1 <- Time[t1Index]
-    t2 <- Time[t2Index]
-    c1 <- Conc[t1Index]
-    c2 <- Conc[t2Index] 
+    t1 <- time[t1Index]
+    t2 <- time[t2Index]
+    c1 <- conc[t1Index]
+    c2 <- conc[t2Index] 
     
     # cInter is the interpolated concentration
     
-    cInter <- c1 + abs( (endTime - t1) / (t2 - t1) ) * (c2 - c1)
+    cInter <- c1 + abs( (endtime - t1) / (t2 - t1) ) * (c2 - c1)
     
-    # concBeforeEndTime, timeBeforeEndTime : vectors of concentrations and times that occur before endTime 
+    # concBeforeEndtime, timeBeforeEndtime : vectors of concentrations and times that occur before endtime 
     
-    concBeforeEndTime <- head(Conc, n = t1Index)
-    timeBeforeEndTime <- head(Time, n = t1Index)
+    concBeforeEndtime <- head(conc, n = t1Index)
+    timeBeforeEndtime <- head(time, n = t1Index)
     
-    aucp <- sum(AUCLin( Conc = c(concBeforeEndTime * timeBeforeEndTime, cInter * endTime), Time = c(timeBeforeEndTime, endTime ) ) )
+    aucp <- sum(AUCLin( conc = c(concBeforeEndtime * timeBeforeEndtime, cInter * endtime), time = c(timeBeforeEndtime, endtime ) ) )
     
     return(aucp)
 }
