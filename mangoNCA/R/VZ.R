@@ -48,7 +48,7 @@ VZPred <- function(conc, time, dose, lamznpt = NULL) {
     
     AUCinfpred <- AUCInfPred(conc = conc, time = time, lamznpt = lamznpt, calculation = "standard")
 
-    VZ_F <- VZ(lambdaz = Lambda_Z_Stats$Lambdaz, AUCInf = AUCinfpred, dose = dose) # volume of distribution HL
+    VZ_F <- VZ(lambdaz = Lambda_Z_Stats$LAMZ, AUCInf = AUCinfpred, dose = dose) # volume of distribution HL
 
     return(VZ_F)
 }
@@ -99,7 +99,7 @@ VZObs  <- function(conc, time, dose, lamznpt = NULL) {
     
     AUCinfobs  <-  AUCInfObs(conc = conc, time = time, lamznpt = lamznpt, calculation = "standard")
     
-    VZ_F <- VZ(lambdaz = Lambda_Z_Stats$Lambdaz, AUCInf = AUCinfobs, dose = dose) # volume of distribution HL
+    VZ_F <- VZ(lambdaz = Lambda_Z_Stats$LAMZ, AUCInf = AUCinfobs, dose = dose) # volume of distribution HL
 
     return(VZ_F)
 }

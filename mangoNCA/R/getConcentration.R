@@ -202,7 +202,7 @@ getConcentration <- function(conc = NULL, time = NULL, firsttime = NA, secondtim
     
     result <- as.numeric(rep(NA, 9))
     
-    lzColNames <- c("Lambdaz", "intercept", "R2", "R2ADJ", "CORRXY", "LAMZHL", 
+    lzColNames <- c("LAMZ", "intercept", "R2", "R2ADJ", "CORRXY", "LAMZHL", 
         "LAMZLL", "LAMZUL", "lamznpt")
     
     names(result) <- lzColNames

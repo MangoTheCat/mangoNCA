@@ -753,7 +753,7 @@ checkLogicalSameLength <- function(x, y,
 #' Utility function that fails with a useful error message if the object is not of the expected structure.
 #' lambdaZStats should be a length 9 vector with names:
 #' \enumerate{
-#'      \item Lambdaz
+#'      \item LAMZ
 #'      \item intercept
 #'      \item R2
 #'      \item R2ADJ

@@ -297,7 +297,7 @@ ncaComplete <- function(conc, time, dose, duration, lamznpt = NA_real_,
 
     result <- rep(NA_real_, times = 9)
 
-    lzColNames <- c("Lambdaz", "intercept", "R2", "R2ADJ",
+    lzColNames <- c("LAMZ", "intercept", "R2", "R2ADJ",
         "CORRXY", "LAMZHL",
         "LAMZLL", "LAMZUL", "lamznpt")
 

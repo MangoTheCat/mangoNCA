@@ -17,7 +17,7 @@
 #' lamznpt is NULL by default. Must be provided if lambdaZStats is not.
 #' The lambdaz statistics may be provided directly to this function; it should have length 1 numeric elements:
 #' \enumerate{
-#'      \item Lambdaz
+#'      \item LAMZ
 #'      \item intercept
 #'      \item R2
 #'      \item R2ADJ
@@ -133,7 +133,7 @@ AUCInfPred <- function(conc, time, lamznpt = NULL, lambdaZStats = NULL,
     
     tLast <- ClastTlast(conc = timeconc$conc, time = timeconc$time)[["tlast"]]
     
-    cLastExtrap <- exp(-lambdaZStats["Lambdaz"] * tLast) * lambdaZStats["intercept"]
+    cLastExtrap <- exp(-lambdaZStats["LAMZ"] * tLast) * lambdaZStats["intercept"]
         
     if (any(is.na(cLastExtrap) | is.na(tLast))) { calc <- "na" }
     
@@ -145,7 +145,7 @@ AUCInfPred <- function(conc, time, lamznpt = NULL, lambdaZStats = NULL,
         
         # aucExtraPred : single numeric with extrapolated AUC
         
-        aucExtraPred <-  cLastExtrap / lambdaZStats["Lambdaz"]
+        aucExtraPred <-  cLastExtrap / lambdaZStats["LAMZ"]
         
         aucip[1] <- aucLast + aucExtraPred
     },
@@ -156,7 +156,7 @@ AUCInfPred <- function(conc, time, lamznpt = NULL, lambdaZStats = NULL,
     
         # aumcExtraPred : single numeric with extrapolated AUMC
         
-        aumcExtraPred <- cLastExtrap * tLast / lambdaZStats["Lambdaz"] + cLastExtrap / lambdaZStats["Lambdaz"]^2
+        aumcExtraPred <- cLastExtrap * tLast / lambdaZStats["LAMZ"] + cLastExtrap / lambdaZStats["LAMZ"]^2
         
         aucip[1] <- aumcLast + aumcExtraPred
         }, 
