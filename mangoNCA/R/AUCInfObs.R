@@ -17,7 +17,7 @@
 #' lamznpt is NULL by default. Must be provided if lambdaZStats is not.
 #' The lambdaz statistics may be provided directly to this function; it should be a length 9 numeric vector with named elements:
 #' \enumerate{
-#'      \item Lambdaz
+#'      \item LAMZ
 #'      \item intercept
 #'      \item R2
 #'      \item R2ADJ
@@ -94,11 +94,9 @@ AUCInfObs <- function(conc, time, lamznpt = NULL, lambdaZStats = NULL,
     }
     
     # Add T = 0 if it is missing and remove missing values
-    
     timeconc <- try(stripTrailingZeros(conc = conc, time = time, addt0 = addt0), silent = TRUE)
     
-    if( is(timeconc, "try-error")) {
-        
+    if (is(timeconc, "try-error")) {
         stop(paste("Error during data cleaning in AUCInfObs", as.character(timeconc), collapse = "\n"))
     }
     
@@ -155,7 +153,7 @@ AUCInfObs <- function(conc, time, lamznpt = NULL, lambdaZStats = NULL,
             
             # aucExtraObs : single numeric with extrapolated AUC
             
-            aucExtraObs <-  cLast / lambdaZStats["Lambdaz"]  
+            aucExtraObs <-  cLast / lambdaZStats["LAMZ"]  
             
             aucio[1] <- aucLast + aucExtraObs
         },
@@ -166,7 +164,7 @@ AUCInfObs <- function(conc, time, lamznpt = NULL, lambdaZStats = NULL,
             
             # aumcExtraObs : single numeric with extrapolated AUMC
             
-            aumcExtraObs <- cLast * tLast / lambdaZStats["Lambdaz"] + cLast / lambdaZStats["Lambdaz"]^2
+            aumcExtraObs <- cLast * tLast / lambdaZStats["LAMZ"] + cLast / lambdaZStats["LAMZ"]^2
             
             aucio[1] <- aumcLast + aumcExtraObs
         }, 

@@ -3,7 +3,7 @@
 # Copyright Mango Solutions, Chippenham, UK
 ###############################################################################
 
-context("checkOrderedVector")
+context("test checkOrderedVector")
 
 # tests the checkOrderedVector function in checkdata.R
 

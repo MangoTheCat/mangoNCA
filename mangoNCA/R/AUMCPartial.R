@@ -8,14 +8,20 @@
 
 #' Area Under the concentration time Moment Curve from T = 0 to T = endtime
 #'
-#' Calculates the area under a concentration-time moment curve from the first time up until the \code{endtime}.  \code{endtime}
-#' need not be one of the elements of \code{time}, but it should like between the minimum and maximum times 
-#' Note, all error checks that apply to \code{\link{AUCLin}} apply here.  If \code{endtime} is less than
+#' Calculates the area under a concentration-time moment curve from the 
+#' first time up until the \code{endtime}.  \code{endtime}
+#' need not be one of the elements of \code{time}, but it should like 
+#' between the minimum and maximum times 
+#' Note, all error checks that apply to \code{\link{AUCLin}} apply here.  
+#' If \code{endtime} is less than
 #' \code{tmin} \code{NA} is returned.  There should be no missing times.
-#' If the endtime does not coincide with an existing time element, the following interpolation formula will be
+#' If the endtime does not coincide with an existing time element, the 
+#' following interpolation formula will be
 #' used to calculated a new concentration (if time is less than tlast): 
-#' \deqn{c_{inter} = c_1 +  \left| \frac{ t^{end} - t_1}{t_2 - t_1} \right|  (c_2 - c_1)}.  If endtime is greater than
-#' tlast, then another concentration is extrapolated via the formula \deqn{c_{extr} = c_0 + \exp(- \lambda_z * endtime)  }
+#' \deqn{c_{inter} = c_1 +  \left| \frac{ t^{end} - t_1}{t_2 - t_1} 
+#' \right|  (c_2 - c_1)}.  If endtime is greater than
+#' tlast, then another concentration is extrapolated via the formula 
+#' \deqn{c_{extr} = c_0 + \exp(- \lambda_z * endtime)  }
 #' 
 #' @inheritParams AUCPartial
 #' @title Partial Area Under Moment Curve
@@ -23,67 +29,82 @@
 #' @author Mango Solutions
 # TODO check if needed \code{\link{MRTInfPredSS}}
 
-AUMCPartial <- function(conc, time, endtime, lamznpt = NULL, lambdaZStats = NULL, 
-    usepoints = NULL, excpoints = FALSE, minpoints = 3, addt0 = FALSE, inter = "Linear", 
-    useObs = FALSE, maxdiffrsq = 1e-4, minr2adj = 0.8, numhalflife = 1) {
+AUMCPartial <- function(conc, time, endtime, lamznpt = NULL, 
+    lambdaZStats = NULL, usepoints = NULL, excpoints = FALSE, 
+    minpoints = 3, addt0 = FALSE, inter = "Linear", 
+    useObs = FALSE, maxdiffrsq = 1e-4, minr2adj = 0.8, 
+    numhalflife = 1) {
     
-    checkOrderedVector(time, description = "time", functionName =  "AUMCPartial")
+    checkOrderedVector(time, 
+        description = "time", 
+        functionName = "AUMCPartial")
     
-    checkSingleNumeric(endtime, description = "endtime", functionName =  "AUMCPartial")
+    checkSingleNumeric(endtime, 
+        description = "endtime", 
+        functionName = "AUMCPartial")
     
     if (is.null(lambdaZStats)) {
-        checkSingleNumeric(lamznpt, description = "lamznpt", functionName =  "AUMCPartial")
+        checkSingleNumeric(lamznpt, 
+            description = "lamznpt", 
+            functionName =  "AUMCPartial")
         
         if (!(lamznpt >= minpoints && lamznpt <= length(time) && 
-            floor(lamznpt) ==  lamznpt) ) {
+            floor(lamznpt) ==  lamznpt)) {
             
-            warning(paste("Invalid value of lamznpt:", lamznpt, "in AUMCPartial", collapse = " "))
-            
+            warning(
+                paste(
+                    "Invalid value of lamznpt:", 
+                    lamznpt, 
+                    "in AUMCPartial", 
+                    collapse = " "))
             return(aucp)
         }
     }
     
     # Add T = 0 if it is missing and remove missing values
+    cleanData <- try(
+        cleanconctime(
+            conc = conc, 
+            time = time, 
+            addt0 = addt0), 
+        silent = TRUE)
     
-    cleanData <- try(cleanconctime(conc = conc, time = time, addt0 = addt0), silent = TRUE)
-    
-    if( is(cleanData, "try-error") ) {
-    
-        stop(paste("Error in AUMCPartial: Error during data cleaning", as.character(cleanData), collapse = "\n"))
-        
+    if (is(cleanData, "try-error")) {
+        stop(
+            paste(
+                "Error in AUMCPartial: Error during data cleaning", 
+                as.character(cleanData), 
+                collapse = "\n"))
     }
 
     conc <- cleanData$conc
     time <- cleanData$time
-        
     aucp <- NA_real_
-    
     
     ###############################################################################
     
     # check endtime occurs during time
-    
-    if( endtime < min(time) ){
-    
+    if (endtime < min(time)) {
         return(aucp)
-        
     }
-    
     
     ###############################################################################
     
-    # if endtime is actually an element of the time vector, we can fall back on standard AUC functions
+    # if endtime is actually an element of the time vector, 
+    # we can fall back on standard AUC functions
     
     if (endtime %in% time) {
         # endtimeIndex : integer with index of endtime inside time
-        endtimeIndex <- match(endtime, time )
+        endtimeIndex <- match(endtime, time)
         
-        aucp <- sum(AUCLin( time = head(time, n = endtimeIndex), 
-            conc = head(conc, n = endtimeIndex) * head(time, n = endtimeIndex) ))
+        aucp <- sum(
+            AUCLin(
+                time = head(time, n = endtimeIndex), 
+                conc = head(conc, n = endtimeIndex) * 
+                       head(time, n = endtimeIndex)))
         
         return(aucp)
     }
-    
     
     ###############################################################################
     
@@ -107,8 +128,11 @@ AUMCPartial <- function(conc, time, endtime, lamznpt = NULL, lambdaZStats = NULL
             
             checkLambdaZStats(lambdaZStats = lambdaZStats)
             
-            aucterm <- try(getTerminalAUC(conc = conc, time = time, 
-                    endtime = endtime, lambdaZStats = lambdaZStats), silent = TRUE)
+            aucterm <- try(
+                getTerminalAUC(
+                    conc = conc, time = time, 
+                    endtime = endtime, lambdaZStats = lambdaZStats), 
+                silent = TRUE)
             
             if (is(aucterm, "try-error")) {
                 
@@ -118,7 +142,8 @@ AUMCPartial <- function(conc, time, endtime, lamznpt = NULL, lambdaZStats = NULL
             }
         } else {
             
-            # calculate the terminal AUC using integral of exponential function (aucterm)
+            # calculate the terminal AUC using integral of exponential 
+            # function (aucterm)
             excpoints <- cleanData$excpoints
             
             if (!is.null(usepoints))  { usepoints <- cleanData$usepoints }
@@ -127,7 +152,7 @@ AUMCPartial <- function(conc, time, endtime, lamznpt = NULL, lambdaZStats = NULL
                     lamznpt = lamznpt), 
                 silent = TRUE)
             
-            if(is(lambdaZStats, "try-error")) {
+            if (is(lambdaZStats, "try-error")) {
                 
                 stop(paste(
                         "Error in AUMCPartial from call to lambdaZStatistics performing complete calculation, message was: ", 
@@ -135,13 +160,13 @@ AUMCPartial <- function(conc, time, endtime, lamznpt = NULL, lambdaZStats = NULL
             }
         }
         
-        
         auclast <- AUCLast(conc = conc * time, time = time)
         
-        # calculate the terminal AUMC using integral of exponential function (aucterm)
+        # calculate the terminal AUMC using integral of exponential 
+        # function (aucterm)
 
         intercept <- lambdaZStats$intercept
-        lambdaz <- lambdaZStats$Lambdaz
+        lambdaz <- lambdaZStats$LAMZ
 
         auc0last <- -intercept / (lambdaz * exp(lambdaz * cLastTLast$tlast))
         auc0end <- -intercept / (lambdaz * exp(lambdaz * endtime))
@@ -151,9 +176,7 @@ AUMCPartial <- function(conc, time, endtime, lamznpt = NULL, lambdaZStats = NULL
         aucp <- auclast + aucterm
         
         return(aucp)
-        
     }
-    
     
     ###############################################################################
     
@@ -163,11 +186,13 @@ AUMCPartial <- function(conc, time, endtime, lamznpt = NULL, lambdaZStats = NULL
     # t1Index the index of the largest time less than endtime
     # t2Index is next next time after t1Index
     
-    t1Index <- tail( which(time < endtime), n = 1 )    
+    t1Index <- tail(which(time < endtime), n = 1)    
     t2Index <- t1Index + 1
     
-    # t1, t2 = left time, right time (of interval containing endtime)
-    # c1, c2 = left concentration, right concentration (of interval containing endtime)
+    # t1, t2 = left time, right time 
+    # (of interval containing endtime)
+    # c1, c2 = left concentration, right concentration 
+    # (of interval containing endtime)
     
     t1 <- time[t1Index]
     t2 <- time[t2Index]
@@ -175,15 +200,17 @@ AUMCPartial <- function(conc, time, endtime, lamznpt = NULL, lambdaZStats = NULL
     c2 <- conc[t2Index] 
     
     # cInter is the interpolated concentration
+    cInter <- c1 + abs((endtime - t1) / (t2 - t1)) * (c2 - c1)
     
-    cInter <- c1 + abs( (endtime - t1) / (t2 - t1) ) * (c2 - c1)
-    
-    # concBeforeEndtime, timeBeforeEndtime : vectors of concentrations and times that occur before endtime 
-    
+    # concBeforeEndtime, timeBeforeEndtime : 
+    # vectors of concentrations and times that occur before endtime 
     concBeforeEndtime <- head(conc, n = t1Index)
     timeBeforeEndtime <- head(time, n = t1Index)
     
-    aucp <- sum(AUCLin( conc = c(concBeforeEndtime * timeBeforeEndtime, cInter * endtime), time = c(timeBeforeEndtime, endtime ) ) )
+    aucp <- sum(
+        AUCLin(
+            conc = c(concBeforeEndtime * timeBeforeEndtime, cInter * endtime), 
+            time = c(timeBeforeEndtime, endtime)))
     
     return(aucp)
 }

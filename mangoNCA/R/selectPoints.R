@@ -88,7 +88,7 @@ selectPoints <- function(conc, time, minpoints = 3, method = "ars",
 
     result <- rep(NA_real_, 9)
 
-    names(result) <- c("Lambdaz", "intercept", "R2", "R2ADJ", "CORRXY",
+    names(result) <- c("LAMZ", "intercept", "R2", "R2ADJ", "CORRXY",
         "LAMZHL", "LAMZLL", "LAMZUL", "lamznpt")
 
     # lambdaz must be calculated using at least minpoints (3) data rows after Cmax
@@ -117,7 +117,7 @@ selectPoints <- function(conc, time, minpoints = 3, method = "ars",
         # remove excluded values
         # proceed if any rows remain!
 
-        nVals <- sum(!timeconc$afterCmax & !timeconc$excpoints)
+        nVals <- sum(timeconc$afterCmax & !timeconc$excpoints)
         if (nVals > 0L) {
 
             # find index of shortest allowed dataset and count
@@ -125,7 +125,7 @@ selectPoints <- function(conc, time, minpoints = 3, method = "ars",
             minIndex <- nVals - (minpoints - 1)
             # object to collect output
             # matrix of
-            #[1] "Lambdaz"
+            #[1] "LAMZ"
             #[2] "intercept"
             #[3] "R2"
             #[4] "R2ADJ"
@@ -259,7 +259,7 @@ fixedPoints <- function(conc, time, lamznpt, excpoints = FALSE, minpoints = 3) {
 
     result <- as.numeric(rep(NA, 9))
 
-    names(result) <- c("Lambdaz", "intercept", "R2", "R2ADJ", "CORRXY", "LAMZHL", "LAMZLL", "LAMZUL", "lamznpt")
+    names(result) <- c("LAMZ", "intercept", "R2", "R2ADJ", "CORRXY", "LAMZHL", "LAMZLL", "LAMZUL", "lamznpt")
 
     # remove excluded values
     timeconc <- timeconc[!timeconc$excpoints, ]
@@ -345,7 +345,7 @@ usedPoints <- function(conc, time, usepoints,
 
     result <- as.numeric(rep(NA, 9))
 
-    names(result) <- c("Lambdaz", "intercept", "R2", "R2ADJ",
+    names(result) <- c("LAMZ", "intercept", "R2", "R2ADJ",
         "CORRXY", "LAMZHL", "LAMZLL", "LAMZUL", "lamznpt")
 
     # remove excluded values

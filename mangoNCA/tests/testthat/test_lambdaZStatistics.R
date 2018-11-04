@@ -102,12 +102,12 @@ test_that("lambdaZStatistics error",  {
     # TEST 4 : check that lamznpt is greater than 0
     
     test4 <- lambdaZStatistics(conc = c(0, 10, 9, 7, 4, 3, 2), time = 0:6, lamznpt = 0)
-    expect_true( is.na(test4$Lambdaz))
+    expect_true(is.na(test4$LAMZ))
     
     # TEST 5 : check that lamznpt is less than or equal to the number of time/concentration points
     
     test5 <- suppressWarnings(lambdaZStatistics(conc = c(0, 10, 9, 7, 4, 3, 2), time = 0:6, lamznpt = 8))
-    expect_true( is.na(test5$R2ADJ))
+    expect_true(is.na(test5$R2ADJ))
     
     # TEST 6 : check that if data are not allowed, an empty list is returned
     # emptyList : list with the components returned by lambdaZStatistics, with all values set to NA

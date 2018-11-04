@@ -3,7 +3,7 @@
 # Copyright Mango Solutions, Chippenham, UK
 ###############################################################################
 
-context("checkSingleNumeric")
+context("test checkSingleNumeric")
 
 # tests the function checkSingleNumeric from checkdata.R
 

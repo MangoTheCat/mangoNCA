@@ -784,7 +784,7 @@ checkLambdaZStats <- function(lambdaZStats,
                 "lambdaZStats has unexpected structure, length 9 numeric vector expected", 
                 collapse = ", ")) }
     
-    lzNames <- c("Lambdaz", "intercept", "R2", "R2ADJ", "CORRXY", "LAMZHL", 
+    lzNames <- c("LAMZ", "intercept", "R2", "R2ADJ", "CORRXY", "LAMZHL", 
         "LAMZLL", "LAMZUL", "lamznpt")
     
     checkNames <- setequal(names(lambdaZStats), lzNames)

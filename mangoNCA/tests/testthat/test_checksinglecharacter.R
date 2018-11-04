@@ -3,7 +3,7 @@
 # Copyright Mango Solutions, Chippenham, UK
 ###############################################################################
 
-context("checkSingleCharacter")
+context("test checkSingleCharacter")
 
 # tests the function checkSingleCharacter from checkdata.R
 

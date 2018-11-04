@@ -12,12 +12,12 @@ test_that("selectPoints working",  {
     # TEST 1 : contrived data set, does not pass regression comparison decision rules
 
     test1 <- suppressWarnings(selectPoints(conc = c(2, rep(1, 9)), time = 0:9))
-    expect_equal( test1$lamznpt, as.numeric(NA))
+    expect_equal( test1$lamznpt, NA_real_)
 
     # TEST 2 : contrived data set, does not pass regression comparison decision rules
 
     test2 <- suppressWarnings(selectPoints(conc = c(rep(2, 9), 0), time = 1:10))
-    expect_equal( test2$lamznpt, as.numeric(NA))
+    expect_equal( test2$lamznpt, NA_real_)
 
     # TEST 3 : contrived data set, multiple 0 elements at the end
 
@@ -78,7 +78,7 @@ test_that("selectPoints working",  {
     c11 <- c(0, 3.94, 1.41, 1.71, 0.57)
     t11 <- c(0, 20.76923, 33.53846, 45.30769, 68.84615)
     test11 <- selectPoints(conc = c11, time = t11)
-    expect_equal(test11$lamznpt, as.numeric(NA))
+    expect_equal(test11$lamznpt, NA_real_)
 
     # calculable if minr2adj = 0.2 (i.e. 0.77 or less)
     test11 <- selectPoints(conc = c11, time = t11, minr2adj = 0.2)
@@ -97,7 +97,7 @@ test_that("selectPoints working",  {
     t12 <- c(0, 0.25, 0.5, 1, 2, 3.52, 5.07, 7.07, 9.03)
     c12 <- c(0, 1.25, 3.96, 7.82, 9.72, 9.75, 8.57, 6.59, 6.11)
     test12 <- selectPoints(conc = c12, time = t12)
-    expect_equal(test12$lamznpt, as.numeric(NA))
+    expect_equal(test12$lamznpt, NA_real_)
 
     # calculable by shrinking LAMZHL
     test12 <- selectPoints(conc = c12, time = t12, numhalflife = 0.3)

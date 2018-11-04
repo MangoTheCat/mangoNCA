@@ -3,7 +3,7 @@
 # Copyright Mango Solutions, Chippenham, UK
 ###############################################################################
 
-context("checkSingleLogical")
+context("test checkSingleLogical")
 
 # tests the function checkSingleLogical from checkdata.R
 

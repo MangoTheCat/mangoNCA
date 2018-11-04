@@ -4,7 +4,7 @@
 # 
 # Original author: fgochez
 # Copyright Mango Solutions, Chippenham, UK
-###############################################################################
+###########################################################
 
 
 #' Predict concentration at time
@@ -12,13 +12,21 @@
 #' Calculate concentration at time.
 #'
 #' @param conc Vector of concentrations.
-#' @param time Vector of times, must be ordered in ascending order and should not have duplicates.
-#' @param predtime time at which conc should be calculated. if predtime is NA, NA is returned.
+#' @param time Vector of times, must be ordered in ascending order and 
+#' should not have duplicates.
+#' @param predtime time at which conc should be calculated. if predtime 
+#' is NA, NA is returned.
 #' @param lamznpt Number of points to use for lambda-z calculation.
-#' @param lambdaZStats if not \code{NULL}, a list with 9 elements (see details). Must be provided if lamznpt is not.
-#' @param usepoints If \code{NULL} (default) automatically select, else, logical vector of points to use for calculation of terminal phase. Used rows are flagged by usepoints as \code{TRUE}.
-#' @param excpoints If \code{NULL} (default) automatically select, else, logical vector of points to exclude from automatic calculation of terminal phase. Excluded rows are flagged by excpoints as \code{TRUE}.
-#' @param addt0 single logical declaring whether to add T = 0 and remove missing values if TRUE or generate exception if FALSE (default is FALSE)
+#' @param lambdaZStats if not \code{NULL}, a list with 9 elements (see details). 
+#' Must be provided if lamznpt is not.
+#' @param usepoints If \code{NULL} (default) automatically select, else, 
+#' logical vector of points to use for calculation of terminal phase. 
+#' Used rows are flagged by usepoints as \code{TRUE}.
+#' @param excpoints If \code{NULL} (default) automatically select, else, 
+#' logical vector of points to exclude from automatic calculation of terminal 
+#' phase. Excluded rows are flagged by excpoints as \code{TRUE}.
+#' @param addt0 single logical declaring whether to add T = 0 and remove missing 
+#' values if TRUE or generate exception if FALSE (default is FALSE)
 #' @title Predict concentration at time
 #' @return Single numeric of predicted concentration at prediction time
 #' @export
@@ -144,7 +152,7 @@ predictConc <- function(conc, time, predtime, lamznpt = NULL, lambdaZStats = NUL
             
             result <- as.numeric(rep(NA, 9))
             
-            lzColNames <- c("Lambdaz", "intercept", "R2", "R2ADJ", "CORRXY", "LAMZHL", "LAMZLL", "LAMZUL", "lamznpt")
+            lzColNames <- c("LAMZ", "intercept", "R2", "R2ADJ", "CORRXY", "LAMZHL", "LAMZLL", "LAMZUL", "lamznpt")
             
             names(result) <- lzColNames
             
@@ -188,7 +196,7 @@ predictConc <- function(conc, time, predtime, lamznpt = NULL, lambdaZStats = NUL
         
         # calculate the extrapolated concentration based on concentration at infinity (predicted)
         
-        predconc[1] <- lambdaZStats["intercept"] * exp(-lambdaZStats["Lambdaz"] * predtime)
+        predconc[1] <- lambdaZStats["intercept"] * exp(-lambdaZStats["LAMZ"] * predtime)
         
         return(predconc)
     }

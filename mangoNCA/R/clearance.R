@@ -119,38 +119,25 @@ CLPred <- function(conc, time, dose, lamznpt = NULL)
 #' @author Mango Solutions
 #' @keywords math
 #' @examples 
-#' Theoph1 <- subset(  Theoph, Subject == 1)
-#' CLObs( conc = Theoph1$conc, time = Theoph1$time, dose = Theoph1$Dose[1])
+#' Theoph1 <- subset(Theoph, Subject == 1)
+#' CLObs(conc = Theoph1$conc, time = Theoph1$time, dose = Theoph1$Dose[1])
 
-CLObs <- function(conc, time, dose, lamznpt = NULL)
-{
+CLObs <- function(conc, time, dose, lamznpt = NULL) {
     # check conc, time, lamznpt and dose, and calculate lamznpt if missing
-    
     checkOrderedVector(time, description = "time", functionName = "CLObs")
     checkNumericSameLength(time, conc, "time", "concentration", functionName = "CLObs")
     checkSingleNumeric(dose, "dose", functionName = "CLObs")
     
-    if(is.na(dose) || dose <= 0 )
-    {
-        return(as.numeric(NA))
-        
+    if (is.na(dose) || dose <= 0) {
+        return(NA_real_)
     }
-    
-    if(is.null(lamznpt)) 
-    { 
+    if (is.null(lamznpt)) { 
         lamznpt <- selectPoints(conc = conc, time = time)
-        
-    } else
-    {
+    } else {
         checkSingleNumeric(lamznpt, "Number of Points lambdaz", functionName = "CLObs")
-        
     }
-    
     # aucInfObs : Area under curve extrapolated to infinity
-    
     aucInfObs <- AUCInfObs(conc = conc, time = time, lamznpt = lamznpt)
-    
     cl <- clearance(AUCInf = aucInfObs, dose = dose)
-    
     return(cl)
 }
