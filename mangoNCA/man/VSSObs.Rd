@@ -2,7 +2,7 @@
 % Please edit documentation in R/VSS.R
 \name{VSSObs}
 \alias{VSSObs}
-\title{Volume Distribution at Steady-State (observed)}
+\title{Function to Calculate Volume of Distribution at Steady State (Observed)}
 \usage{
 VSSObs(conc, time, dose, duration, lamznpt = NULL)
 }
@@ -22,9 +22,6 @@ single numeric number of points for calculation of terminal phase.}
 Single numeric value
 }
 \description{
-Function to Calculate Volume of Distribution at Steady State (Observed)
-}
-\details{
 Calculates volume distribution at steady-state (observed).
 This is a convenience function for when using the R package. 
 \code{\link{ncaComplete}} calls VSS directly since MRTInfObs and CLObs have already been calculated.

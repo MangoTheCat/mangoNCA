@@ -86,7 +86,7 @@ selectPoints <- function(conc, time, minpoints = 3, method = "ars",
     # initialize outputs
     lamznpt <- NA_real_
 
-    result <- rep(NA_real_, 9)
+    result <- rep(NA_real_, times = 9L)
 
     names(result) <- c("LAMZ", "intercept", "R2", "R2ADJ", "CORRXY",
         "LAMZHL", "LAMZLL", "LAMZUL", "lamznpt")
@@ -122,7 +122,7 @@ selectPoints <- function(conc, time, minpoints = 3, method = "ars",
 
             # find index of shortest allowed dataset and count
             # total number of models that will be created
-            minIndex <- nVals - (minpoints - 1)
+            minIndex <- nVals - (minpoints - 1L)
             # object to collect output
             # matrix of
             #[1] "LAMZ"
@@ -143,9 +143,9 @@ selectPoints <- function(conc, time, minpoints = 3, method = "ars",
             # update lambdaZStatistics
             # rss is lmFitSummary$sigma
 
-            vals <- matrix(0, nrow = minIndex, ncol = 10)
+            vals <- matrix(0, nrow = minIndex, ncol = 10L)
 
-            vals[, 10] <- seq_len(minIndex)
+            vals[, 10L] <- seq_len(minIndex)
 
             ### Regression comparison decision rules
 
@@ -156,12 +156,12 @@ selectPoints <- function(conc, time, minpoints = 3, method = "ars",
 
             # perform regression for each data subset
 
-            for (i in vals[, 10, drop = TRUE]) {
+            for (i in vals[, 10L, drop = TRUE]) {
 
                 # each model with data subsets from Cmax onwards is calculated
                 lambdazOut <- lambdaZStatistics(conc = timeconc$conc,
                     time = timeconc$time,
-                    lamznpt = nVals - i + 1,
+                    lamznpt = nVals - i + 1L,
                     checkcmax = FALSE, minpoints = minpoints)
 
                 vals[i, 1:9] <- unlist(lambdazOut)
@@ -171,30 +171,30 @@ selectPoints <- function(conc, time, minpoints = 3, method = "ars",
             # regression comparison decision rules:
 
             # 1: [1] lambdaz must be greater than minlambdaz (default 0)
-            isLambdazTooSmall <- vals[, 1] <= minlambdaz
+            isLambdazTooSmall <- vals[, 1L] <= minlambdaz
             # 2: [4] R2ADJ must be at least minr2adj (default 0.5)
-            isAdjRSqTooSmall <- vals[, 4] < minr2adj
+            isAdjRSqTooSmall <- vals[, 4L] < minr2adj
             # 3: [6] LAMZHL * numhalflife must be less than
             #     calculatedInterval [8] LAMZUL - [7] LAMZLL
-            isHalflifeTooBig <- numhalflife * vals[, 6] > vals[, 8] - vals[, 7]
+            isHalflifeTooBig <- numhalflife * vals[, 6L] > vals[, 8L] - vals[, 7L]
 
-            vals[isLambdazTooSmall | isAdjRSqTooSmall | isHalflifeTooBig, 4] <- NA_real_
+            vals[isLambdazTooSmall | isAdjRSqTooSmall | isHalflifeTooBig, 4L] <- NA_real_
 
             # find max value if present and return
             # The number of points should INCLUDE omitted points so that index
             # corresponds to the input dataset
 
-            if (!all(is.na(vals[, 4]))) {
+            if (!all(is.na(vals[, 4L]))) {
 
-                maxadjrs <- max(vals[, 4], na.rm = TRUE)
+                maxadjrs <- max(vals[, 4L], na.rm = TRUE)
 
-                valsWithinLimIndex <- which((maxadjrs - vals[, 4]) <= maxdiffrsq)
+                valsWithinLimIndex <- which((maxadjrs - vals[, 4L]) <= maxdiffrsq)
 
-                if (length(valsWithinLimIndex) > 0) {
+                if (length(valsWithinLimIndex) > 0L) {
 
                     lamznptIndex <- min(valsWithinLimIndex)
 
-                    lamznpt <- nVals - lamznptIndex + 1
+                    lamznpt <- nVals - lamznptIndex + 1L
 
                     result[1:9] <- vals[lamznptIndex, 1:9, drop = TRUE]
                 }

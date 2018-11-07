@@ -37,7 +37,7 @@
 #' @param lambdaZStats if not \code{NULL}, a list with 9 elements (see details). Must be provided if lamznpt is not.
 #' @param calculation Must be either the string "standard" or "moment".  If the former, calculates the standard area under
 #' the curve.  For the latter, it will calculate the area under the moment curve
-#' @param minpoints Minimum number of points to use for the LAMZcalculation(s), 3 by default. Single positive integer.
+#' @param minpoints Minimum number of points to use for the Lambda-z calculation(s), 3 by default. Single positive integer.
 #' @param addt0 Single logical value declaring whether T0 should be added if missing (default \code{TRUE}).
 #' @param inter Single character stating whether the interpolation method used is \code{"Linear"} (default) or \code{"Linear Log"}
 #' @return A numeric vector with a single element holding the area under the concentration/time curve until "infinity".

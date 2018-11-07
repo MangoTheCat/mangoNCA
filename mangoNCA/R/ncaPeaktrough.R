@@ -12,7 +12,7 @@
 #'
 #' @title PeakTrough Vector of pre- and post-dose identifiers (TROUGHCODE and PEAKCODE respectively). There must not be more than one of each. NULL is replaced with 0.
 #' @inheritParams getNCAnalysis
-#' @param ROutput Named vector consisting of 38 NA and 1 zero with names which should match expected output names.
+#' @param output Named vector consisting of 38 NA and 1 zero with names which should match expected output names.
 #' @return Data frame 
 #' @author Mango Solutions
 #' @export
@@ -21,8 +21,7 @@
 #' ncaPeakTrough(conc = Theoph1$conc, time = Theoph1$time, 
 #'     dose = Theoph1$Dose[1], duration = 1)
 
-ncaPeakTrough <- function(conc, time, dose, duration, 
-    ROutput = shapeROutput) {
+ncaPeakTrough <- function(conc, time, dose, duration, output) {
     
     error <- ""
     
@@ -43,8 +42,6 @@ ncaPeakTrough <- function(conc, time, dose, duration,
     error <- paste(check01, check02, check05, check06, check07, collapse = "\n")
     
     if (!identical(x = error, y = "")) {
-        
-        ROutput <- as.data.frame(as.list(ROutput))
         
         ROutput["ERROR"] <- error
         

@@ -17,6 +17,7 @@
 #' @name CDISCPP-class
 #' @rdname CDISCPP-class
 #' @exportClass CDISCPP
+#' @importFrom methods callNextMethod is show validObject
 #' @aliases CDISCPP
 #' @examples
 #' x <- new("CDISCPP")
@@ -84,3 +85,10 @@ setMethod(f = "initialize",
     validObject(.Object)      
     return(.Object)
 })
+
+setMethod(f = "[<-", 
+    signature = "CDISCPP", 
+    definition = function(x, i, ..., value) {
+        slot(object = x, name = i, value  = value)
+        return(x)
+    })

@@ -34,6 +34,7 @@
 #' \dontrun{
 #'  checkNumericSameLength(1:10, 1:9)
 #' }
+#' @importFrom utils capture.output head tail
 #' @return returns NULL invisibly if no error was generated.
 #' @noRd
 

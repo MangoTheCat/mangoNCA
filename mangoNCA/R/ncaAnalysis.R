@@ -1,10 +1,6 @@
-# SVN revision: $Rev:  $
-# Date of last change: $LastChangedDate: 24/05/2013 $
-# Last changed by: $LastChangedBy: ccampbell $
-# 
+
+# Last changed by: ccampbell
 # Original author: plobb
-# Copyright Mango Solutions, Chippenham, UK
-###############################################################################
 
 #' Perform Non-Compartmental Analysis for a Concentration-Time repeated measures dataset.
 #' 
@@ -33,7 +29,7 @@
 #' }
 #' No unit conversion is performed by these functions.
 #' \code{ncaAnalysis} returns a data frame with 39 columns containing 1 row of numeric results.
-#' The final column of the return is \code{ROutput_Error}. This should be zero. If it is not, an error  
+#' The final column of the return is \code{ERROR}. This should be zero. If it is not, an error  
 #' has occured. The text of each error will appear in this column as a single character string with  
 #' individual messages separated by a newline.  
 #' If there are three or fewer rows, data is passed to \code{\link{ncaPeakTrough}} for Peak/Trough identification only.
@@ -106,48 +102,7 @@ ncaAnalysis <- function(Conc = NULL, Time = NULL, Dose = NULL, Dof = NULL, PeakT
 
     # Initialise data check return object
     
-    ROutput <- c(rep(as.numeric(NA), times = 38), 0)
-    
-    names(ROutput) <- c(
-        "R2ADJ",
-        "INTERCEPT",
-        "LAMZNPT",
-        "R2",
-        "CORRXY",
-        "AUCPEO",
-        "AUCPEP",
-        "AUCIFO",
-        "AUCIFP",
-        "AUCLST",
-        "AUMCPEO",
-        "AUMCPEP",
-        "AUMCIFO",
-        "AUMCIFP",
-        "AUMCLST",
-        "CLST",
-        "CLO",
-        "CLP",
-        "CMAX",
-        "CMIN",
-        "INTDOSE",
-        "DOSE",
-        "LAMZHL",
-        "LAMZ",
-        "LAMZLL",
-        "LAMZUL",
-        "MRTIFO",
-        "MRTIFP",
-        "MRTLST",
-        "CPEAK",
-        "TLST",
-        "TMAX",
-        "TMIN",
-        "CTROUGH",
-        "VSSO",
-        "VSSP",
-        "VZO",
-        "VZP",
-        "ERROR")
+    output <- new("CDISCPP")
 
     # Check data for gross errors
 
@@ -168,11 +123,9 @@ ncaAnalysis <- function(Conc = NULL, Time = NULL, Dose = NULL, Dof = NULL, PeakT
         
         # coerce to data frame and return
         
-        ROutput <- as.data.frame(as.list(ROutput))
-        
-        ROutput["ROutput_Error"] <- ROutput_Error
+        output["ERROR"] <- ROutput_Error
      
-        return(ROutput)
+        return(output)
         
     }
     
@@ -224,11 +177,9 @@ ncaAnalysis <- function(Conc = NULL, Time = NULL, Dose = NULL, Dof = NULL, PeakT
         
         # coerce to data frame and return
         
-        ROutput <- as.data.frame(as.list(ROutput))
-        
-        ROutput["ROutput_Error"] <- ROutput_Error
+        output["ERROR"] <- ROutput_Error
      
-        return(ROutput)
+        return(output)
         
     }
     
@@ -240,38 +191,38 @@ ncaAnalysis <- function(Conc = NULL, Time = NULL, Dose = NULL, Dof = NULL, PeakT
     if ( length(Time) > THRESHOLDCOMPLETE )  
     {
         
-        ROutput_ncaComplete <- ncaComplete(Conc = Conc, Time = Time, Dose = Dose, Dof = Dof, PeakTrough = PeakTrough, 
-            numPoints = numPoints, usePoints = usePoints, excPoints = excPoints, Safe = Safe, ROutput = ROutput, inter = inter)
+        output_ncaComplete <- ncaComplete(Conc = Conc, Time = Time, Dose = Dose, Dof = Dof, PeakTrough = PeakTrough, 
+            numPoints = numPoints, usePoints = usePoints, excPoints = excPoints, Safe = Safe, output = output, inter = inter)
 
-        if (identical(names(ROutput_ncaComplete), names(ROutput)) && identical(as.integer(1), nrow(ROutput_ncaComplete))) {
+        if (identical(names(ROutput_ncaComplete), names(output)) && identical(as.integer(1), nrow(ROutput_ncaComplete))) {
         
-            ROutput <- ROutput_ncaComplete
+            output <- ROutput_ncaComplete
             
         } else 
         {
         
-            ROutput["ROutput_Error"] <- "error in ncaAnalysis: return object from ncaComplete did not have expected structure\n"
+            output["ERROR"] <- "error in ncaAnalysis: return object from ncaComplete did not have expected structure\n"
         
         }
         
-        return(ROutput)
+        return(output)
         
     }  else  {
     
-        ROutput_ncaPeakTrough <- ncaPeakTrough(Conc = Conc, Time = Time, Dose = Dose, Dof = Dof, PeakTrough = PeakTrough, ROutput = ROutput)
+        ROutput_ncaPeakTrough <- ncaPeakTrough(Conc = Conc, Time = Time, Dose = Dose, Dof = Dof, PeakTrough = PeakTrough, output = output)
         
-        if(identical(names(ROutput_ncaPeakTrough), names(ROutput)) && identical(as.integer(1), nrow(ROutput_ncaPeakTrough))) {
+        if(identical(names(ROutput_ncaPeakTrough), names(output)) && identical(as.integer(1), nrow(ROutput_ncaPeakTrough))) {
         
-            ROutput <- ROutput_ncaPeakTrough
+            output <- ROutput_ncaPeakTrough
             
         } else 
         {
         
-            ROutput["ROutput_Error"] <- "error in ncaAnalysis: return object from ncaPeakTrough did not have expected structure\n"
+            output["ERROR"] <- "error in ncaAnalysis: return object from ncaPeakTrough did not have expected structure\n"
         
         }
         
-        return(ROutput)
+        return(output)
         
     }
 }

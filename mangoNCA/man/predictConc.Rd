@@ -10,19 +10,27 @@ predictConc(conc, time, predtime, lamznpt = NULL, lambdaZStats = NULL,
 \arguments{
 \item{conc}{Vector of concentrations.}
 
-\item{time}{Vector of times, must be ordered in ascending order and should not have duplicates.}
+\item{time}{Vector of times, must be ordered in ascending order and 
+should not have duplicates.}
 
-\item{predtime}{time at which conc should be calculated. if predtime is NA, NA is returned.}
+\item{predtime}{time at which conc should be calculated. if predtime 
+is NA, NA is returned.}
 
 \item{lamznpt}{Number of points to use for lambda-z calculation.}
 
-\item{lambdaZStats}{if not \code{NULL}, a list with 9 elements (see details). Must be provided if lamznpt is not.}
+\item{lambdaZStats}{if not \code{NULL}, a list with 9 elements (see details). 
+Must be provided if lamznpt is not.}
 
-\item{usepoints}{If \code{NULL} (default) automatically select, else, logical vector of points to use for calculation of terminal phase. Used rows are flagged by usepoints as \code{TRUE}.}
+\item{usepoints}{If \code{NULL} (default) automatically select, else, 
+logical vector of points to use for calculation of terminal phase. 
+Used rows are flagged by usepoints as \code{TRUE}.}
 
-\item{excpoints}{If \code{NULL} (default) automatically select, else, logical vector of points to exclude from automatic calculation of terminal phase. Excluded rows are flagged by excpoints as \code{TRUE}.}
+\item{excpoints}{If \code{NULL} (default) automatically select, else, 
+logical vector of points to exclude from automatic calculation of terminal 
+phase. Excluded rows are flagged by excpoints as \code{TRUE}.}
 
-\item{addt0}{single logical declaring whether to add T = 0 and remove missing values if TRUE or generate exception if FALSE (default is FALSE)}
+\item{addt0}{single logical declaring whether to add T = 0 and remove missing 
+values if TRUE or generate exception if FALSE (default is FALSE)}
 }
 \value{
 Single numeric of predicted concentration at prediction time

@@ -1,14 +1,9 @@
-# SVN revision: $Rev:  $
-# Date of last change: $LastChangedDate: 03/02/2012 $
-# Last changed by: $LastChangedBy: ccampbell $
-# 
+
 # Original author: fgochez
-# Copyright Mango Solutions, Chippenham, UK
-###############################################################################
 
 #' @title Volume Distribution at Steady-State (predicted)
 #' 
-#' Function to Calculate Volume of Distribution at Steady State (Predicted)
+#' @description Function to Calculate Volume of Distribution at Steady State (Predicted).
 #'
 #' Calculates volume distribution at steady-state (predicted).
 #' This is a convenience function for when using the R package. 
@@ -60,9 +55,9 @@ VSSPred <- function(conc, time, dose, duration, lamznpt = NULL) {
 }
 
 
-#' Function to Calculate Volume of Distribution at Steady State (Observed)
+#' @title Function to Calculate Volume of Distribution at Steady State (Observed)
 #'
-#' Calculates volume distribution at steady-state (observed).
+#' @description Calculates volume distribution at steady-state (observed).
 #' This is a convenience function for when using the R package. 
 #' \code{\link{ncaComplete}} calls VSS directly since MRTInfObs and CLObs have already been calculated.
 #' \code{VSSObs} calls \code{\link{VSS}} after calling \code{\link{MRTInfObsSD}}, \code{\link{AUCInfObs}} and \code{\link{clearance}}.

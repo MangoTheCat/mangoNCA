@@ -2,15 +2,7 @@
 % Please edit documentation in R/VSS.R
 \name{VSSPred}
 \alias{VSSPred}
-\title{Volume Distribution at Steady-State (predicted)
-
-Function to Calculate Volume of Distribution at Steady State (Predicted)
-
-Calculates volume distribution at steady-state (predicted).
-This is a convenience function for when using the R package. 
-\code{\link{ncaComplete}} calls VSS since MRTInfPred and CLPred have already been calculated.
-\code{VSSPred} calls \code{\link{VSS}} after calling \code{\link{MRTInfPredSD}}, 
-\code{\link{AUCInfPred}} and \code{\link{clearance}}.}
+\title{Volume Distribution at Steady-State (predicted)}
 \usage{
 VSSPred(conc, time, dose, duration, lamznpt = NULL)
 }
@@ -28,6 +20,15 @@ single numeric number of points for calculation of terminal phase.}
 }
 \value{
 Single numeric value
+}
+\description{
+Function to Calculate Volume of Distribution at Steady State (Predicted).
+
+Calculates volume distribution at steady-state (predicted).
+This is a convenience function for when using the R package. 
+\code{\link{ncaComplete}} calls VSS since MRTInfPred and CLPred have already been calculated.
+\code{VSSPred} calls \code{\link{VSS}} after calling \code{\link{MRTInfPredSD}}, 
+\code{\link{AUCInfPred}} and \code{\link{clearance}}.
 }
 \note{
 All input checks / error handling for CLPred and MRTInfPredSD apply.   

@@ -12,21 +12,27 @@ AUMCPartial(conc, time, endtime, lamznpt = NULL, lambdaZStats = NULL,
 \arguments{
 \item{conc}{Vector of concentrations}
 
-\item{time}{Vector of times, must be ordered in ascending order and should not have duplicates}
+\item{time}{Vector of times, must be ordered in ascending order and 
+should not have duplicates}
 
 \item{endtime}{: last time at which area should be calculated}
 
 \item{lamznpt}{: Number of points to use for lambda-z calculation.}
 
-\item{lambdaZStats}{if not \code{NULL}, a list with 9 elements (see details). Must be provided if lamznpt is not.}
+\item{lambdaZStats}{if not \code{NULL}, a list with 9 elements (see details). 
+Must be provided if lamznpt is not.}
 
-\item{usepoints}{If NULL (default) automatically select, else, logical vector of points to use (\code{TRUE}) for calculation of terminal phase.}
+\item{usepoints}{If NULL (default) automatically select, else, logical 
+vector of points to use (\code{TRUE}) for calculation of terminal phase.}
 
-\item{excpoints}{Logical vector (\code{FALSE} by default) excludeing \code{TRUE} rows from automatic calculation of terminal phase.}
+\item{excpoints}{Logical vector (\code{FALSE} by default) excludeing 
+\code{TRUE} rows from automatic calculation of terminal phase.}
 
-\item{minpoints}{single numeric, the fewest points for which a linear model fit should be attempted (default 3)}
+\item{minpoints}{single numeric, the fewest points for which a linear model 
+fit should be attempted (default 3)}
 
-\item{addt0}{single logical, should T=0, C=0 be added to the input data if T0 is missing? (default \code{FALSE})}
+\item{addt0}{single logical, should T=0, C=0 be added to the input data if 
+T0 is missing? (default \code{FALSE})}
 
 \item{inter}{Single character stating whether the interpolation method used 
 is \code{"Linear"} (default), \code{"Lin up Log down"} or \code{"Linear Log"}}
@@ -40,11 +46,13 @@ for terminal phase calculation for the set of trailing points with the
 most points that is within maxdiffrsq of the maximum adjusted R-squared 
 (default 1e-4)}
 
-\item{minr2adj}{single numeric Minimum value permitted for adjusted R-squared for lambda-z to be calculated. 
+\item{minr2adj}{single numeric Minimum value permitted for adjusted 
+R-squared for lambda-z to be calculated. 
 If NA or NULL, lambda-z calculation is supressed. (default 0.8)}
 
 \item{numhalflife}{single numeric Multiplier for terminal phase half life, 
-when checking that terminal phase half life is not an excessively large portion of the AUC0_Inf. 
+when checking that terminal phase half life is not an excessively 
+large portion of the AUC0_Inf. 
 To always return lambda-z, set to 0.
 To never return lambda-z set to Inf, NULL or NA. (default 1)}
 }
@@ -55,14 +63,20 @@ Single numeric
 Area Under the concentration time Moment Curve from T = 0 to T = endtime
 }
 \details{
-Calculates the area under a concentration-time moment curve from the first time up until the \code{endtime}.  \code{endtime}
-need not be one of the elements of \code{time}, but it should like between the minimum and maximum times 
-Note, all error checks that apply to \code{\link{AUCLin}} apply here.  If \code{endtime} is less than
+Calculates the area under a concentration-time moment curve from the 
+first time up until the \code{endtime}.  \code{endtime}
+need not be one of the elements of \code{time}, but it should like 
+between the minimum and maximum times 
+Note, all error checks that apply to \code{\link{AUCLin}} apply here.  
+If \code{endtime} is less than
 \code{tmin} \code{NA} is returned.  There should be no missing times.
-If the endtime does not coincide with an existing time element, the following interpolation formula will be
+If the endtime does not coincide with an existing time element, the 
+following interpolation formula will be
 used to calculated a new concentration (if time is less than tlast): 
-\deqn{c_{inter} = c_1 +  \left| \frac{ t^{end} - t_1}{t_2 - t_1} \right|  (c_2 - c_1)}.  If endtime is greater than
-tlast, then another concentration is extrapolated via the formula \deqn{c_{extr} = c_0 + \exp(- \lambda_z * endtime)  }
+\deqn{c_{inter} = c_1 +  \left| \frac{ t^{end} - t_1}{t_2 - t_1} 
+\right|  (c_2 - c_1)}.  If endtime is greater than
+tlast, then another concentration is extrapolated via the formula 
+\deqn{c_{extr} = c_0 + \exp(- \lambda_z * endtime)  }
 }
 \author{
 Mango Solutions

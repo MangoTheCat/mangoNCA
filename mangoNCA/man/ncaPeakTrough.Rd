@@ -4,7 +4,7 @@
 \alias{ncaPeakTrough}
 \title{PeakTrough Vector of pre- and post-dose identifiers (TROUGHCODE and PEAKCODE respectively). There must not be more than one of each. NULL is replaced with 0.}
 \usage{
-ncaPeakTrough(conc, time, dose, duration, ROutput = shapeROutput)
+ncaPeakTrough(conc, time, dose, duration, output)
 }
 \arguments{
 \item{conc}{Vector of conc}
@@ -15,7 +15,7 @@ ncaPeakTrough(conc, time, dose, duration, ROutput = shapeROutput)
 
 \item{duration}{Single numeric value of duration of infusion}
 
-\item{ROutput}{Named vector consisting of 38 NA and 1 zero with names which should match expected output names.}
+\item{output}{Named vector consisting of 38 NA and 1 zero with names which should match expected output names.}
 }
 \value{
 Data frame

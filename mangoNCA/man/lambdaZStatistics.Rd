@@ -17,7 +17,7 @@ Returns a list of single numeric values:
      \item \code{R2}: The R^2 of the regression fit
      \item \code{R2ADJ}: The adjusted R^2 of the regression fit
      \item \code{CORRXY}: The correlation coefficient of the observed fit.
-     \item \code{LAMZHL}: Terminal phase half-life, equal to ln(2) / Lambdaz
+     \item \code{LAMZHL}: Terminal phase half-life, equal to ln(2) / LAMZ
      \item \code{LAMZLL}: Lower bound of time used in lambda z calculation
      \item \code{LAMZUL}: Upper bound of time used in lambda z calculation
      \item \code{lamznpt}: Number of points used in calculation

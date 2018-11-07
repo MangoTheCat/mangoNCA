@@ -21,7 +21,7 @@ in ascending order.}
 \item{calculation}{Must be either the string "standard" or "moment".  If the former, calculates the standard area under
 the curve.  For the latter, it will calculate the area under the moment curve}
 
-\item{minpoints}{Minimum number of points to use for the LAMZcalculation(s), 3 by default. Single positive integer.}
+\item{minpoints}{Minimum number of points to use for the Lambda-z calculation(s), 3 by default. Single positive integer.}
 
 \item{addt0}{Single logical value declaring whether T0 should be added if missing (default \code{TRUE}).}
 
@@ -45,7 +45,7 @@ lamznpt must be a single integer greater than minPonts (which should be at least
 lamznpt is NULL by default. Must be provided if lambdaZStats is not.
 The lambdaz statistics may be provided directly to this function; it should be a length 9 numeric vector with named elements:
 \enumerate{
-     \item Lambdaz
+     \item LAMZ
      \item intercept
      \item R2
      \item R2ADJ

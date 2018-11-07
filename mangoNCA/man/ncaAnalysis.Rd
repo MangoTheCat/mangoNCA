@@ -61,52 +61,52 @@ Optional arguments are: \enumerate{
 }
 No unit conversion is performed by these functions.
 \code{ncaAnalysis} returns a data frame with 39 columns containing 1 row of numeric results.
-The final column of the return is \code{ROutput_Error}. This should be zero. If it is not, an error  
+The final column of the return is \code{ERROR}. This should be zero. If it is not, an error  
 has occured. The text of each error will appear in this column as a single character string with  
 individual messages separated by a newline.  
 If there are three or fewer rows, data is passed to \code{\link{ncaPeakTrough}} for Peak/Trough identification only.
 If there are four or more rows, data is passed to \code{\link{ncaComplete}} for full non-compartmental analysis.
 Returns a data frame with 1 row containing columns:
  \enumerate{
-     \item \code{ROutput_adjr2}  
-     \item \code{ROutput_intercept} 
-     \item \code{ROutput_numPoints}  
-     \item \code{ROutput_r2}  
-     \item \code{ROutput_rhoXY}  
-     \item \code{ROutput_AUC_Percent_Extrapolated_obs}  
-     \item \code{ROutput_AUC_Percent_Extrapolated_pred}  
-     \item \code{ROutput_AUCInfObs}  
-     \item \code{ROutput_AUCInfPred}  
-     \item \code{ROutput_AUCLast}  
-     \item \code{ROutput_AUMC_Percent_Extrapolated_obs}  
-     \item \code{ROutput_AUMC_Percent_Extrapolated_pred} 
-     \item \code{ROutput_AUMCInfObs}  
-     \item \code{ROutput_AUMCInfPred}  
-     \item \code{ROutput_AUMCLast}  
-     \item \code{ROutput_CLast}  
-     \item \code{ROutput_ClObs}  
-     \item \code{ROutput_ClPred}  
-     \item \code{ROutput_Cmax}  
-     \item \code{ROutput_Cmin}  
-     \item \code{ROutput_Dof}  
-     \item \code{ROutput_Dose}  
-     \item \code{ROutput_HalfLife}  
-     \item \code{ROutput_LambdaZ}  
-     \item \code{ROutput_LambdazLower}  
-     \item \code{ROutput_LambdazUpper}  
-     \item \code{ROutput_MRTInfObs}  
-     \item \code{ROutput_MRTInfPred}  
-     \item \code{ROutput_MRTLast}  
-     \item \code{ROutput_Peak}  
-     \item \code{ROutput_TLast}  
-     \item \code{ROutput_Tmax}  
-     \item \code{ROutput_Tmin}  
-     \item \code{ROutput_Trough}  
-     \item \code{ROutput_VssObs}  
-     \item \code{ROutput_VssPred}  
-     \item \code{ROutput_VzObs} 
-     \item \code{ROutput_VzPred} 
-     \item \code{ROutput_Error} 
+     \item \code{R2ADJ}
+     \item \code{INTERCEPT}
+     \item \code{LAMZNPT}
+     \item \code{R2}
+     \item \code{CORRXY}
+     \item \code{AUCPEO}
+     \item \code{AUCPEP}
+     \item \code{AUCIFO}
+     \item \code{AUCIFP}
+     \item \code{AUCLST}
+     \item \code{AUMCPEO}
+     \item \code{AUMCPEP}
+     \item \code{AUMCIFO}
+     \item \code{AUMCIFP}
+     \item \code{AUMCLST}
+     \item \code{CLST}
+     \item \code{CLO}
+     \item \code{CLP}
+     \item \code{CMAX}
+     \item \code{CMIN}
+     \item \code{INTDOSE}
+     \item \code{DOSE}
+     \item \code{LAMZHL}
+     \item \code{LAMZ}
+     \item \code{LAMZLL}
+     \item \code{LAMZUL}
+     \item \code{MRTIFO}
+     \item \code{MRTIFP}
+     \item \code{MRTLST}
+     \item \code{CPEAK}
+     \item \code{TLST}
+     \item \code{TMAX}
+     \item \code{TMIN}
+     \item \code{CTROUGH}
+     \item \code{VSSO}
+     \item \code{VSSP}
+     \item \code{VZO}
+     \item \code{VZP}
+     \item \code{ERROR}
  }
 }
 \examples{

@@ -5,8 +5,6 @@
 
 #' Perform Non-Compartmental Analysis for Complete concentration-time Datasets
 #'
-#' This function is not expected to be used directly. The output structure
-#' is passed from \code{getNCAnalysis}.
 #' \code{ncaComplete} calculates NCA parameters for individuals returning
 #' as many parameters as are calculable.
 #' \code{CPEAK} and \code{CTROUGH} will always be returned where possible.
@@ -61,8 +59,6 @@
 #'
 #' @title Non-Compartmental Analysis on concentration-time Data
 #' @inheritParams getNCAnalysis
-#' @param ROutput Named vector consisting of 38 NA and 1 zero
-#' with names which should match expected output names.
 #' @return Data frame
 #' @author Mango Solutions
 #' @export
@@ -72,9 +68,8 @@
 #'     dose = Theoph1$Dose[1], duration = 1)
 
 ncaComplete <- function(conc, time, dose, duration, lamznpt = NA_real_,
-    usepoints = NULL, excpoints = FALSE, addt0 = FALSE,
-    inter = "Linear", ROutput = shapeROutput,
-    maxdiffrsq = 1e-4, minr2adj = 0.8, numhalflife = 1) {
+    usepoints = NULL, excpoints = FALSE, addt0 = FALSE, inter = "Linear", 
+    maxdiffrsq = 1e-4, minr2adj = 0.8, numhalflife = 1, output) {
 
     error <- ""
 
@@ -90,13 +85,9 @@ ncaComplete <- function(conc, time, dose, duration, lamznpt = NA_real_,
 
     if (!identical(x = error, y = "")) {
 
-        # return with error
+        output["ERROR"] <- error
 
-        ROutput <- as.data.frame(as.list(ROutput))
-
-        ROutput["ERROR"] <- error
-
-        return(ROutput)
+        return(output)
     }
     # removed checks for PeakTrough
 
@@ -128,10 +119,10 @@ ncaComplete <- function(conc, time, dose, duration, lamznpt = NA_real_,
     check11 <- try(checkSingleCharacter(inter, "inter",
         "ncaComplete"), silent = TRUE)
 
-    if(!identical(as.integer(39), length(ROutput))
-        || is.null(names(ROutput))) {
+    if(!identical(as.integer(39), length(output))
+        || is.null(names(output))) {
 
-        check12 <- "error in ncaComplete: ROutput should be a named vector of length 39"
+        check12 <- "error in ncaComplete: output should be a named vector of length 39"
 
     } else {
 
@@ -149,11 +140,9 @@ ncaComplete <- function(conc, time, dose, duration, lamznpt = NA_real_,
 
         # return with error
 
-        ROutput <- as.data.frame(as.list(ROutput))
+        output["ERROR"] <- error
 
-        ROutput["ERROR"] <- error
-
-        return(ROutput)
+        return(output)
 
     } else { error <- "" }
 
@@ -177,9 +166,8 @@ ncaComplete <- function(conc, time, dose, duration, lamznpt = NA_real_,
             error <- 0
         }
         # return
-        ROutput <- as.data.frame(as.list(ROutput))
-        ROutput[, "ERROR"] <- error
-        return(ROutput)
+        output[, "ERROR"] <- error
+        return(output)
     }
     conc <- cleanData$conc
 
@@ -200,9 +188,9 @@ ncaComplete <- function(conc, time, dose, duration, lamznpt = NA_real_,
 
     } else {
 
-        ROutput["CMAX"] <- CmaxTmax_Out$cmax
+        output["CMAX"] <- CmaxTmax_Out$cmax
 
-        ROutput["TMAX"] <- CmaxTmax_Out$tmax
+        output["TMAX"] <- CmaxTmax_Out$tmax
     }
 
     if(is(CminTmin_Out, "try-error")) {
@@ -211,9 +199,9 @@ ncaComplete <- function(conc, time, dose, duration, lamznpt = NA_real_,
 
     } else {
 
-        ROutput["CMIN"] <- CminTmin_Out$cmin
+        output["CMIN"] <- CminTmin_Out$cmin
 
-        ROutput["TMIN"] <- CminTmin_Out$tmin
+        output["TMIN"] <- CminTmin_Out$tmin
     }
     ### Interpolated Paramters
 
@@ -226,9 +214,9 @@ ncaComplete <- function(conc, time, dose, duration, lamznpt = NA_real_,
 
     } else {
 
-        ROutput["CLST"] <- ClastTlast_Out$clast
+        output["CLST"] <- ClastTlast_Out$clast
 
-        ROutput["TLST"] <- ClastTlast_Out$tlast
+        output["TLST"] <- ClastTlast_Out$tlast
     }
 
     ## AUCLast
@@ -240,7 +228,7 @@ ncaComplete <- function(conc, time, dose, duration, lamznpt = NA_real_,
 
     } else {
 
-        ROutput["AUCLST"] <- AUCLST
+        output["AUCLST"] <- AUCLST
     }
     ## AUMCLast
     AUMCLST <- try(AUCLast(conc = conc * time, time = time, addt0 = addt0, inter = inter), silent = TRUE)
@@ -251,12 +239,12 @@ ncaComplete <- function(conc, time, dose, duration, lamznpt = NA_real_,
 
     } else {
 
-        ROutput["AUMCLST"] <- AUMCLST
+        output["AUMCLST"] <- AUMCLST
     }
 
     ## MRTLast
-    value <- try(MRTSD(AUC = ROutput["AUCLST"],
-        AUMC = ROutput["AUMCLST"], duration = duration), silent = TRUE)
+    value <- try(MRTSD(AUC = output["AUCLST"],
+        AUMC = output["AUMCLST"], duration = duration), silent = TRUE)
 
     if (is(value, "try-error")) {
 
@@ -268,18 +256,16 @@ ncaComplete <- function(conc, time, dose, duration, lamznpt = NA_real_,
 
         # return with error
 
-        ROutput <- as.data.frame(as.list(ROutput))
+        output[, "ERROR"] <- error
 
-        ROutput[, "ERROR"] <- error
-
-        return(ROutput)
+        return(output)
     }
 
-    ROutput["MRTLST"] <- value
+    output["MRTLST"] <- value
 
-    ROutput["DOSE"] <- dose
+    output["DOSE"] <- dose
 
-    ROutput["INTDOSE"] <- duration
+    output["INTDOSE"] <- duration
 
     ###########################################################################
 
@@ -350,11 +336,11 @@ ncaComplete <- function(conc, time, dose, duration, lamznpt = NA_real_,
                 sep = "", collapse = "")
         }
 
-        ROutput <- as.data.frame(as.list(ROutput))
+        output <- as.data.frame(as.list(output))
 
-        ROutput[, "ERROR"] <- error
+        output[, "ERROR"] <- error
 
-        return(ROutput)
+        return(output)
     }
 
     # lambdaz has been calculated, so add elements to output vector
@@ -362,7 +348,7 @@ ncaComplete <- function(conc, time, dose, duration, lamznpt = NA_real_,
         "R2ADJ", "CORRXY", "LAMZHL",
         "LAMZLL", "LAMZUL", "LAMZNPT")
 
-    ROutput[roColNames] <- lamznpt_result$result[lzColNames]
+    output[roColNames] <- lamznpt_result$result[lzColNames]
 
     ## AUCInfObs
     value <- try(
@@ -375,16 +361,16 @@ ncaComplete <- function(conc, time, dose, duration, lamznpt = NA_real_,
 
         error <- paste(error, value, collapse = "\n")
 
-    } else { ROutput["AUCIFO"] <- value }
+    } else { output["AUCIFO"] <- value }
 
 
-    value <- try(pcExtrap(ROutput["AUCIFO"], ROutput["AUCLST"]), silent = TRUE)
+    value <- try(pcExtrap(output["AUCIFO"], output["AUCLST"]), silent = TRUE)
 
     if (is(value, "try-error")) {
 
         error <- paste(error, value, collapse = "\n")
 
-    } else { ROutput["AUCPEO"] <- value }
+    } else { output["AUCPEO"] <- value }
     
     ## AUMCInfObs
     value <- try(
@@ -397,22 +383,20 @@ ncaComplete <- function(conc, time, dose, duration, lamznpt = NA_real_,
 
         error <- paste(error, value, collapse = "\n")
 
-    } else { ROutput["AUMCIFO"] <- value }
+    } else { output["AUMCIFO"] <- value }
 
     ## check for errors and return if present
-    value <- try(pcExtrap(ROutput["AUMCIFO"], ROutput["AUMCLST"]), silent = TRUE)
+    value <- try(pcExtrap(output["AUMCIFO"], output["AUMCLST"]), silent = TRUE)
 
     if (is(value, "try-error") || !identical(x = error, y = "")) {
 
         error <- paste(error, value, collapse = "\n")
 
-        ROutput <- as.data.frame(as.list(ROutput))
+        output[, "ERROR"] <- error
 
-        ROutput[, "ERROR"] <- error
+        return(output)
 
-        return(ROutput)
-
-    } else { ROutput["AUMCPEO"] <- value }
+    } else { output["AUMCPEO"] <- value }
     
     ## AUCInfPred
     value <- try(
@@ -423,15 +407,15 @@ ncaComplete <- function(conc, time, dose, duration, lamznpt = NA_real_,
 
     if (is(value, "try-error")) {
         error <- paste(error, value, collapse = "\n")
-    } else { ROutput["AUCIFP"] <- value }
+    } else { output["AUCIFP"] <- value }
     
-    value <- try(pcExtrap(ROutput["AUCIFP"], ROutput["AUCLST"]), silent = TRUE)
+    value <- try(pcExtrap(output["AUCIFP"], output["AUCLST"]), silent = TRUE)
     
     if (is(value, "try-error")) {
 
         error <- paste(error, value, collapse = "\n")
 
-    } else { ROutput["AUCPEP"] <- value }
+    } else { output["AUCPEP"] <- value }
     
     ## AUMCInfPred
     value <- try(
@@ -444,80 +428,76 @@ ncaComplete <- function(conc, time, dose, duration, lamznpt = NA_real_,
 
         error <- paste(error, value, collapse = "\n")
 
-    } else { ROutput["AUMCIFP"] <- value }
+    } else { output["AUMCIFP"] <- value }
     
     ## check for errors and return if present
-    value <- try(pcExtrap(ROutput["AUMCIFP"], ROutput["AUMCLST"]), silent = TRUE)
+    value <- try(pcExtrap(output["AUMCIFP"], output["AUMCLST"]), silent = TRUE)
 
     if (is(value, "try-error") || !identical(x = error, y = "")) {
 
         error <- paste(error, value, collapse = "\n")
 
-        ROutput <- as.data.frame(as.list(ROutput))
+        output[, "ERROR"] <- error
 
-        ROutput[, "ERROR"] <- error
+        return(output)
 
-        return(ROutput)
-
-    } else { ROutput["AUMCPEP"] <- value }
+    } else { output["AUMCPEP"] <- value }
 
     ## Clearance
-    value <- try(clearance(ROutput["AUCIFO"], dose), silent = TRUE)
+    value <- try(clearance(output["AUCIFO"], dose), silent = TRUE)
 
     if (is(value, "try-error")) {
 
         error <- paste(error, value, collapse = "\n")
 
-    } else { ROutput["CLO" ] <- value }
+    } else { output["CLO" ] <- value }
 
 
-    value <- try(clearance(ROutput["AUCIFP"], dose), silent = TRUE)
+    value <- try(clearance(output["AUCIFP"], dose), silent = TRUE)
 
     if (is(value, "try-error")) {
 
         error <- paste(error, value, collapse = "\n")
 
-    } else { ROutput["CLP"] <- value }
+    } else { output["CLP"] <- value }
 
     ##  Mean Residence time Inf Obs
-    value <- try(MRTSD(AUC = ROutput["AUCIFO"], AUMC = ROutput["AUMCIFO"], duration = duration), silent = TRUE)
+    value <- try(MRTSD(AUC = output["AUCIFO"], AUMC = output["AUMCIFO"], duration = duration), silent = TRUE)
 
     if (is(value, "try-error")) {
 
         error <- paste(error, value, collapse = "\n")
 
-    } else { ROutput["MRTIFO" ] <- value }
+    } else { output["MRTIFO" ] <- value }
 
     ## check for errors and return if present
     ##  Mean Residence time Inf Pred
     value <- try(
-        MRTSD(AUC = ROutput["AUCIFP"], AUMC = ROutput["AUMCIFP"], duration = duration), silent = TRUE)
+        MRTSD(AUC = output["AUCIFP"], AUMC = output["AUMCIFP"], duration = duration), silent = TRUE)
     
     if (is(value, "try-error") || !identical(x = error, y = "")) {
         
         error <- paste(error, value, collapse = "\n")
         
-        ROutput <- as.data.frame(as.list(ROutput))
+        output[, "ERROR"] <- error
         
-        ROutput[, "ERROR"] <- error
+        return(output)
         
-        return(ROutput)
-        
-    } else { ROutput["MRTIFP"] <- value }
+    } else { output["MRTIFP"] <- value }
     
     ## Terminal Volume Obs
     value <- try(
-        VZ(lambdaz = ROutput["LAMZ"], AUCInf = ROutput["AUCIFO"],
+        VZ(lambdaz = output["LAMZ"], AUCInf = output["AUCIFO"],
             dose = dose),
         silent = TRUE)
     
     if (is(value, "try-error")) {
         error <- paste(error, value, collapse = "\n")
-    } else { ROutput["VZO" ] <- value }
+    } else { output["VZO" ] <- value }
     
     ## Terminal Volume Pred
     value <- try(
-        VZ(lambdaz = ROutput["LAMZ"], AUCInf = ROutput["AUCIFP"],
+        VZ(lambdaz = output["LAMZ"], AUCInf = output["AUCIFP"],
             dose = dose),
         silent = TRUE)
 
@@ -525,40 +505,36 @@ ncaComplete <- function(conc, time, dose, duration, lamznpt = NA_real_,
 
         error <- paste(error, value, collapse = "\n")
 
-    } else { ROutput["VZP"] <- value }
+    } else { output["VZP"] <- value }
     
     ## Steady State Volume Obs
     value <- try(
-        VSS(MRT = ROutput["MRTIFO" ], CL = ROutput["CLO" ]),
+        VSS(MRT = output["MRTIFO" ], CL = output["CLO" ]),
         silent = TRUE)
 
     if (is(value, "try-error")) {
 
         error <- paste(error, value, collapse = "\n")
 
-    } else { ROutput["VSSO" ] <- value }
+    } else { output["VSSO" ] <- value }
     ## check for errors and return if present
 
     ## Steady State Volume Pred
-    value <- try(VSS(MRT = ROutput["MRTIFP"], CL = ROutput["CLP" ]), silent = TRUE)
+    value <- try(VSS(MRT = output["MRTIFP"], CL = output["CLP" ]), silent = TRUE)
 
     if (is(value, "try-error") || !identical(x = error, y = "")) {
 
         error <- paste(error, value, collapse = "\n")
 
-        ROutput <- as.data.frame(as.list(ROutput))
+        output[, "ERROR"] <- error
 
-        ROutput[, "ERROR"] <- error
+        return(output)
 
-        return(ROutput)
-
-    } else { ROutput["VSSP"] <- value }
+    } else { output["VSSP"] <- value }
 
     ###########################################################################
 
-    ROutput <- as.data.frame(as.list(ROutput))
-
-    return(ROutput)
+    return(output)
 }
 #' @title Choose how to handle lamznpt
 #'

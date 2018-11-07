@@ -6,8 +6,7 @@
 \usage{
 ncaComplete(conc, time, dose, duration, lamznpt = NA_real_,
   usepoints = NULL, excpoints = FALSE, addt0 = FALSE, inter = "Linear",
-  ROutput = shapeROutput, maxdiffrsq = 1e-04, minr2adj = 0.8,
-  numhalflife = 1)
+  maxdiffrsq = 1e-04, minr2adj = 0.8, numhalflife = 1, output)
 }
 \arguments{
 \item{conc}{Vector of conc}
@@ -35,9 +34,6 @@ be added to time if missing? (default FALSE)}
 \item{inter}{Single character stating whether the interpolation method used is
 \code{"Linear"} (default), \code{"Lin up Log down"} or \code{"Linear Log"}}
 
-\item{ROutput}{Named vector consisting of 38 NA and 1 zero
-with names which should match expected output names.}
-
 \item{maxdiffrsq}{single numeric in range 0-1 The Adjusted R-squared method
 will select the number of points
 for terminal phase calculation for the set of trailing points with the
@@ -64,8 +60,6 @@ Data frame
 Perform Non-Compartmental Analysis for Complete concentration-time Datasets
 }
 \details{
-This function is not expected to be used directly. The output structure
-is passed from \code{getNCAnalysis}.
 \code{ncaComplete} calculates NCA parameters for individuals returning
 as many parameters as are calculable.
 \code{CPEAK} and \code{CTROUGH} will always be returned where possible.

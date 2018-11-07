@@ -43,6 +43,7 @@
 #' @param doaic single logical should RSS and AIC be returned in addition to other stats (default is FALSE).
 #' @return A list with a set of length 1 numeric vectors.
 #' @export
+#' @importFrom stats AIC coef complete.cases cor lm na.exclude na.omit
 #' @examples
 #' Theoph2 <- subset(Theoph, Subject == 2)
 #' lambdaZStatistics(conc = Theoph2$conc, time = Theoph2$Time)

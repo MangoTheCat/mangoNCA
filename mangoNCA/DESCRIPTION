@@ -1,8 +1,8 @@
 Package: mangoNCA
 Type: Package
 Title: Mango Non-Compartmental Analysis
-Version: 2.0.1
-Date: 2017-11-13
+Version: 2.0.2
+Date: 2018-11-07
 Authors@R: c(person("", "Mango Solutions", email = "sales@mango-solutions.com", role = "cph"),
     person("Phil", "Lobb", role = "aut"),
     person("Francisco", "Gochez", role = "aut"),
@@ -14,5 +14,4 @@ Suggests: testthat
 Depends: methods, stats, R (>= 2.11.0)
 License: MIT + file LICENSE
 LazyData: true
-Copyright: 2013-2017 Mango Business Solutions
 RoxygenNote: 6.0.1

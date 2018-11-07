@@ -33,8 +33,8 @@ The following additional input processing/checks are performed:
 }
 }
 \examples{
-Theoph1 <- subset(  Theoph, Subject == 1)
-CLObs( conc = Theoph1$conc, time = Theoph1$time, dose = Theoph1$Dose[1])
+Theoph1 <- subset(Theoph, Subject == 1)
+CLObs(conc = Theoph1$conc, time = Theoph1$time, dose = Theoph1$Dose[1])
 }
 \author{
 Mango Solutions
